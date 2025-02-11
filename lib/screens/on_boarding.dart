@@ -64,8 +64,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   children: [
                     TextButton(
                       onPressed: () async{
+
+                        //setting isFirstTime false
                         SharedPreferences prefs = await SharedPreferences.getInstance();
                         prefs.setBool("isFirstTime", false);
+
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(builder: (context) => SignIn()),
                         );
