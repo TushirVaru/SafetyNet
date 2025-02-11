@@ -1,4 +1,3 @@
-import 'package:SafetyNet/screens/login.dart'; // Make sure this path is correct
 import 'package:flutter/material.dart';
 
 class SignIn extends StatefulWidget {
@@ -9,321 +8,286 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  final passwordController = TextEditingController();
-  final emailController = TextEditingController();
+  // Controllers for input fields
   final firstNameController = TextEditingController();
   final middleNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final dateController = TextEditingController();
   final ageController = TextEditingController();
-  final contactController = TextEditingController();
 
-  final signInController = PageController();
+  // Page Controllers
+  final PageController signInController = PageController();
+  final PageController signInSubController = PageController();
 
   String selectedGender = '';
   bool isLastPage = false;
+  bool isLastSubPage = false;
 
   @override
   void dispose() {
     signInController.dispose();
+    signInSubController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(bottom: 80),
-        child: PageView(
-          controller: signInController,
-          physics: const NeverScrollableScrollPhysics(),
-          onPageChanged: (index) {
-            setState(() {
-              isLastPage = index == 1;
-            });
-          },
-          children: [
-            // Sign-In Pages
-            _basicInfo(),
+      body: PageView(
+        controller: signInController,
+        physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (index) {
+          setState(() {
+            isLastPage = (index == 1); // Checking if last main page
+          });
+        },
+        children: [
 
-            // Success Page
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.check_circle, size: 100, color: Colors.green),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Sign In Successful!',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'You are now Registered.',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => const Login()),
-                      );
-                    },
-                    child: const Text("Go to Login Page"),
-                  ),
-                ],
-              ),
+          // Basic Info Page
+          Padding(
+            padding: const EdgeInsets.only(top: 40.0),
+            child: _basicInfo(),
+          ),
+
+          // Success Page
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.check_circle, size: 100, color: Colors.green),
+                const SizedBox(height: 20),
+                const Text(
+                  'Sign In Successful!',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                const Text('You are now Registered.', style: TextStyle(fontSize: 16)),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Go to Login Page"),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  _basicInfo(){
-    bool _isValidPage(BuildContext context) {
-      bool isValid = true;
+  Widget _basicInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
 
-      // Helper function to show snack bars
-      void showSnackBar(String message) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            duration: const Duration(seconds: 1), // Short duration
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        // Main Heading (Left aligned)
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+          child: Text(
+            'Enter Your Basic Details...',
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
-        );
-      }
+        ),
 
-      // Validation conditions
-      if (firstNameController.text.isEmpty) {
-        showSnackBar("Name cannot be empty");
-        isValid = false;
-      }if (middleNameController.text.isEmpty) {
-        showSnackBar("Name cannot be empty");
-        isValid = false;
-      }if (lastNameController.text.isEmpty) {
-        showSnackBar("Name cannot be empty");
-        isValid = false;
-      }
-      if (dateController.text.isEmpty) {
-        showSnackBar("Please select a valid Date of Birth");
-        isValid = false;
-      }
-      if (ageController.text.isEmpty || int.tryParse(ageController.text) == null) {
-        showSnackBar("Invalid age");
-        isValid = false;
-      }
-      if (emailController.text.isEmpty || !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(emailController.text)) {
-        showSnackBar("Enter a valid email address");
-        isValid = false;
-      }
-      if (selectedGender.isEmpty) {
-        showSnackBar("Please select a gender");
-        isValid = false;
-      }
+        // Nested PageView inside Center
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30.0),
+              child: PageView(
+                controller: signInSubController,
+                physics: const NeverScrollableScrollPhysics(),
+                onPageChanged: (index) {
+                  setState(() {
+                    isLastSubPage = (index == 1); // Check last sub-page
+                  });
+                },
+                children: [
 
-      return isValid;
-    }
-
-    Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // const Icon(Icons.lock, size: 100, color: Colors.blue),
-          // const SizedBox(height: 20),
-          // const Text(
-          //   'Sign In',
-          //   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          // ),
-          // const SizedBox(height: 10),
-
-          //Name
-          const Text("Name", style: TextStyle(fontSize: 20)),
-          const SizedBox(height: 5),
-          //First Name
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              controller: firstNameController,
-              decoration: const InputDecoration(
-                  labelText: 'First Name', border: OutlineInputBorder()),
-            ),
-          ),
-          const SizedBox(height: 20),
-          //Middle Name
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              controller: middleNameController,
-              decoration: const InputDecoration(
-                  labelText: 'Middle Name', border: OutlineInputBorder()),
-            ),
-          ),
-          const SizedBox(height: 20),
-          //Last Name
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              controller: lastNameController,
-              decoration: const InputDecoration(
-                  labelText: 'Last Name', border: OutlineInputBorder()),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          //Username
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                  labelText: 'Username', border: OutlineInputBorder()),
-            ),
-          ),
-          const Text("It should only contain small case alphabet without any special symbol or sign", style: TextStyle(color: Colors.grey)),
-          const SizedBox(height: 20),
-
-          //DOB
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                const Text(
-                  'DOB:',
-                  style: TextStyle(fontSize: 16),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: dateController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: 'DD/MM/YYYY',
-                      border: OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.calendar_today, size: 20),
-                        onPressed: () async {
-                          DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime.now(),
-                          );
-
-                          if (pickedDate != null) {
-                            setState(() {
-                              // Update DOB field
-                              dateController.text =
-                              "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
-
-                              // Calculate age
-                              DateTime today = DateTime.now();
-                              int age = today.year - pickedDate.year;
-                              if (today.month < pickedDate.month ||(today.month == pickedDate.month && today.day < pickedDate.day)) {
-                                age--;
-                              }
-
-                              // Update Age field
-                              ageController.text = age.toString();
-                            });
-                          }
-                        },
+                  //Name Inputs
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        children: [
+                          _customTextField(firstNameController, 'First Name'),
+                          const SizedBox(height: 15),
+                          _customTextField(middleNameController, 'Middle Name'),
+                          const SizedBox(height: 15),
+                          _customTextField(lastNameController, 'Last Name'),
+                        ],
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
 
-          //Age
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              controller: ageController,
-              readOnly: true, // Make age field read-only
-              decoration: const InputDecoration(
-                labelText: 'Age',
-                border: OutlineInputBorder(),
+                  // First Sub Page - DOB, Gender
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        children: [
+                          // Date of Birth Field
+                          TextField(
+                            controller: dateController,
+                            readOnly: true,
+                            decoration: InputDecoration(
+                              labelText: 'Date of Birth',
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.calendar_today),
+                                onPressed: () async {
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(1900),
+                                    lastDate: DateTime.now(),
+                                  );
+
+                                  if (pickedDate != null) {
+                                    setState(() {
+                                      dateController.text = "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+
+                                      // Calculate Age
+                                      DateTime today = DateTime.now();
+                                      int age = today.year - pickedDate.year;
+                                      if (today.month < pickedDate.month ||
+                                          (today.month == pickedDate.month && today.day < pickedDate.day)) {
+                                        age--;
+                                      }
+                                      ageController.text = age.toString();
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+
+                          // Age Field
+                          TextField(
+                            controller: ageController,
+                            readOnly: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Age',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Gender Selection
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text('Gender:', style: TextStyle(fontSize: 16)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Radio<String>(
+                                    value: "Male",
+                                    groupValue: selectedGender,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedGender = value!;
+                                      });
+                                    },
+                                  ),
+                                  const Text('Male'),
+                                  const SizedBox(width: 20),
+
+                                  Radio<String>(
+                                    value: "Female",
+                                    groupValue: selectedGender,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedGender = value!;
+                                      });
+                                    },
+                                  ),
+                                  const Text('Female'),
+                                  const SizedBox(width: 20),
+
+                                  Radio<String>(
+                                    value: "Other",
+                                    groupValue: selectedGender,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedGender = value!;
+                                      });
+                                    },
+                                  ),
+                                  const Text('Other'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ), // Second Sub Page
+                ],
               ),
             ),
           ),
-          const SizedBox(height: 20),
+        ),
 
-          //Gender
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Gender:',
-                  style: TextStyle(fontSize: 16),
+        //Previous Button
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Align(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: Align(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      signInSubController.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeIn,
+                      );
+                    },
+                    child: const Text('Previous'),
+                  ),
                 ),
-                Row(
-                  children: [
-                    Radio<String>(
-                      //male
-                      value: "Male",
-                      groupValue: selectedGender,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedGender = value!;
-                        });
-                      },
-                    ),
-                    const Text('Male'),
-                    const SizedBox(width: 20),
-
-                    //female
-                    Radio<String>(
-                      value: "Female",
-                      groupValue: selectedGender,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedGender = value!;
-                        });
-                      },
-                    ),
-                    const Text('Female'),
-                    const SizedBox(width: 20),
-
-                    //Others
-                    Radio<String>(
-                      value: "Other",
-                      groupValue: selectedGender,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedGender = value!;
-                        });
-                      },
-                    ),
-                    const Text('Other'),
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
 
+            // Next Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Align(
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (isLastSubPage) {
+                      signInController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeIn,
+                      );
+                    } else {
+                      signInSubController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeIn,
+                      );
+                    }
+                  },
+                  child: const Text('Next'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 
-          //SignIn Button
-          ElevatedButton(
-            onPressed: () {
-              if (_isValidPage(context)) {
-                // Navigate to Success Page
-                signInController.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeIn,
-                );
-              }
-            },
-            child: const Text('Sign In'),
-          ),
-        ],
+  // Custom Input Field Widget
+  Widget _customTextField(TextEditingController controller, String label) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
       ),
     );
   }
