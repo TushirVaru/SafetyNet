@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/verhoeff.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -8,6 +9,8 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
+  // Verhoeff verfoeff = new Verhoeff();
+
   // Controllers for input fields
   final firstNameController = TextEditingController();
   final middleNameController = TextEditingController();
@@ -21,6 +24,8 @@ class _SignInState extends State<SignIn> {
   final countryController = TextEditingController();
   final stateController = TextEditingController();
   final pinCodeController = TextEditingController();
+  final aadhaarController = TextEditingController();
+
 
   // Page Controllers
   final PageController signInController = PageController();
@@ -28,9 +33,10 @@ class _SignInState extends State<SignIn> {
   final PageController signInSub2Controller = PageController();
   final PageController signInSub3Controller = PageController();
 
-  String selectedGender = '';
-  // int isLastPage = 0, isLastSub1Page = 0, isLastSub2Page = 0, isLastSub3Page = 0;
+  String selectedGender = '', aadhaarError = "";
   int mainPageIndex = 0, subPage1Index = 0, subPage2Index = 0, subPage3Index = 0;
+
+  final List<Map<String, String>> contacts = [];
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +59,12 @@ class _SignInState extends State<SignIn> {
                 Padding(
                   padding: const EdgeInsets.only(top: 40.0),
                   child:  _contactDetails(),//Placeholder(),//
+                ),
+
+                // Contact Info Page
+                Padding(
+                  padding: const EdgeInsets.only(top: 40.0),
+                  child:  _IdentityDetails(),//Placeholder(),//
                 ),
 
                 // Success Page
@@ -459,4 +471,275 @@ class _SignInState extends State<SignIn> {
       ],
     );
   }
+
+  Widget _IdentityDetails() {
+    String? phoneError;
+    final nameController = TextEditingController();
+    final phoneController = TextEditingController();
+
+    void _showAddContactDialog() {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Add Emergency Contact'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                maxLength: 10,
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  border: OutlineInputBorder(),
+                  errorText: phoneError,
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    if (value.length == 10 && RegExp(r'^[0-9]+$').hasMatch(value)) {
+                      phoneError = null; // No error
+                    } else {
+                      phoneError = "Enter a valid 10-digit number"; // Show error
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (nameController.text.isNotEmpty && phoneController.text.isNotEmpty) {
+                  setState(() {  // Moved setState to _SignInState
+                    contacts.add({
+                      'name': nameController.text,
+                      'phone': phoneController.text,
+                    });
+                  });
+                  nameController.clear();
+                  phoneController.clear();
+                  Navigator.pop(context);
+                }
+              },
+              child: Text('Add'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    void _showDeleteDialog(int index) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Delete Contact'),
+          content: Text('Are you sure you want to delete this emergency contact?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  contacts.removeAt(index);
+                });
+                Navigator.pop(context);
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: Text('Delete'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+          child: Text(
+            'Enter Your Identity Details...',
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30.0),
+              child: PageView(
+                controller: signInSub3Controller,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+
+                          // Aadhaar
+                          TextField(
+                            controller: aadhaarController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 12,
+                            decoration: InputDecoration(
+                              labelText: 'Aadhaar Card Number',
+                              border: OutlineInputBorder(),
+                              errorText: aadhaarError.isNotEmpty ? aadhaarError : null,
+                            ),
+                            onChanged: (value) {
+                              if (value.length == 12) {
+                                setState(() {
+                                  aadhaarError = Verhoeff.validateAadhaar(value) ? "" : "❌ Invalid Aadhaar Number";
+                                });
+                              } else {
+                                setState(() {
+                                  aadhaarError = "";
+                                });
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Emergency Contacts Section
+                          Text(
+                            'Emergency Contact',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: contacts.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            contacts[index]['name'] ?? '',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+                                          Text(
+                                            contacts[index]['phone'] ?? '',
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    PopupMenuButton(
+                                      icon: Icon(Icons.more_vert, color: Colors.black), // Fixed color issue
+                                      onSelected: (value) {
+                                        if (value == 'delete') {
+                                          _showDeleteDialog(index);
+                                        }
+                                      },
+                                      itemBuilder: (context) => [
+                                        PopupMenuItem(
+                                          value: 'delete',
+                                          child: Text('Delete'),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+
+                          // Add button
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: _showAddContactDialog,
+                              icon: Icon(Icons.add_circle_outline, color: Colors.green),
+                              label: Text('Add Another Emergency Contact'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Previous & Next Buttons
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: ElevatedButton(
+                onPressed: () {
+                  signInController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeIn,
+                  );
+                },
+                child: const Text('Previous'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: ElevatedButton(
+                onPressed: () {
+                  signInController.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeIn,
+                  );
+                },
+                child: const Text('Next'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
+
+
+
+// Center(
+// child: TextButton.icon(
+// onPressed: () {
+//
+// // setState(() {
+// //   emergencyContacts.add({
+// //     'name': TextEditingController(),
+// //     'phone': TextEditingController(),
+// //   });
+// // });
+// },
+// icon: Icon(Icons.add_circle_outline),
+// label: Text('Add Another Emergency Contact'),
+// ),
+// ),
