@@ -46,7 +46,7 @@ class _SignInState extends State<SignIn> {
         physics: const NeverScrollableScrollPhysics(),
         onPageChanged: (index) {
           setState(() {
-            isLastPage = index; // Checking if last main page
+            isLastPage = index;
           });
         },
         children: [
