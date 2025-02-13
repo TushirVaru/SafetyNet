@@ -478,65 +478,72 @@ class _SignInState extends State<SignIn> {
     final phoneController = TextEditingController();
 
     void _showAddContactDialog() {
+
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Add Emergency Contact'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(),
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: Text('Add Emergency Contact'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Name',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: phoneController,
+                      keyboardType: TextInputType.phone,
+                      maxLength: 10,
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        border: OutlineInputBorder(),
+                        errorText: phoneError,
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          if (RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                            phoneError = null; // Valid input
+                          } else {
+                            phoneError = "Enter a valid 10-digit number"; // Error message
+                          }
+                        });
+                      },
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                controller: phoneController,
-                keyboardType: TextInputType.phone,
-                maxLength: 10,
-                decoration: InputDecoration(
-                  labelText: 'Phone Number',
-                  border: OutlineInputBorder(),
-                  errorText: phoneError,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    if (value.length == 10 && RegExp(r'^[0-9]+$').hasMatch(value)) {
-                      phoneError = null; // No error
-                    } else {
-                      phoneError = "Enter a valid 10-digit number"; // Show error
-                    }
-                  });
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (nameController.text.isNotEmpty && phoneController.text.isNotEmpty) {
-                  setState(() {  // Moved setState to _SignInState
-                    contacts.add({
-                      'name': nameController.text,
-                      'phone': phoneController.text,
-                    });
-                  });
-                  nameController.clear();
-                  phoneController.clear();
-                  Navigator.pop(context);
-                }
-              },
-              child: Text('Add'),
-            ),
-          ],
-        ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (nameController.text.isNotEmpty && phoneController.text.isNotEmpty && phoneError == null) {
+                        setState(() {
+                          contacts.add({
+                            'name': nameController.text,
+                            'phone': phoneController.text,
+                          });
+                        });
+                        nameController.clear();
+                        phoneController.clear();
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: Text('Add'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
       );
     }
 
@@ -619,7 +626,7 @@ class _SignInState extends State<SignIn> {
                           // Emergency Contacts Section
                           Text(
                             'Emergency Contact',
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                           ),
                           ListView.builder(
                             shrinkWrap: true,
@@ -644,9 +651,9 @@ class _SignInState extends State<SignIn> {
                                           ),
                                           SizedBox(height: 4),
                                           Text(
-                                            contacts[index]['phone'] ?? '',
+                                            " - ${contacts[index]['phone']}",
                                             style: TextStyle(
-                                              color: Colors.grey,
+                                              color: Colors.black,
                                               fontSize: 14,
                                             ),
                                           ),
@@ -725,21 +732,3 @@ class _SignInState extends State<SignIn> {
     );
   }
 }
-
-
-
-// Center(
-// child: TextButton.icon(
-// onPressed: () {
-//
-// // setState(() {
-// //   emergencyContacts.add({
-// //     'name': TextEditingController(),
-// //     'phone': TextEditingController(),
-// //   });
-// // });
-// },
-// icon: Icon(Icons.add_circle_outline),
-// label: Text('Add Another Emergency Contact'),
-// ),
-// ),
