@@ -40,10 +40,9 @@ class HomePageState extends State<HomePage> {
 
   void logOut() async {
     await prefs.setBool("isLoggedIn", false);
-    print("User logged out!");
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Login()),
+      MaterialPageRoute(builder: (context) => const Login()),
     );
   }
 }

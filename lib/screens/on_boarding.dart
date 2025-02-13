@@ -24,40 +24,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 80),
-          child: PageView(
-            controller: pageViewController,
-            onPageChanged: (index) {
-              setState(() {
-                isLastPage = index == 2;
-              });
-            },
-            children: [
-              _buildPage(
-                title: 'Welcome',
-                description: 'Discover awesome features of the app.',
-                imagePath: 'assets/Welcome.jpg',
-              ),
-              _buildPage(
-                title: 'Explore',
-                description: 'Explore various tools and functionalities.',
-                imagePath: 'assets/Explore.jpg',
-              ),
-              _buildPage(
-                title: 'Get Started',
-                description: 'Let\'s start using the app now.',
-                imagePath: 'assets/GetStarted.jpg',
-              ),
-            ],
-          ),
+      body: Padding(
+        padding: const EdgeInsets.only(bottom: 80),
+        child: PageView(
+          controller: pageViewController,
+          onPageChanged: (index) {
+            setState(() {
+              isLastPage = index == 2;
+            });
+          },
+          children: [
+            _buildPage(
+              title: 'Welcome',
+              description: 'Discover awesome features of the app.',
+              imagePath: 'assets/Welcome.jpg',
+            ),
+            _buildPage(
+              title: 'Explore',
+              description: 'Explore various tools and functionalities.',
+              imagePath: 'assets/Explore.jpg',
+            ),
+            _buildPage(
+              title: 'Get Started',
+              description: 'Let\'s start using the app now.',
+              imagePath: 'assets/GetStarted.jpg',
+            ),
+          ],
         ),
       ),
       bottomSheet: isLastPage
           ? Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
+              child: SizedBox(
                 height: 80,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -70,7 +68,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         prefs.setBool("isFirstTime", false);
 
                         Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => SignIn()),
+                          MaterialPageRoute(builder: (context) => const SignIn()),
                         );
                       },
                       child: const Text("Get Started"),
@@ -81,7 +79,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             )
           : Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
+            child: SizedBox(
               height: 80,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

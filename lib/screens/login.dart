@@ -43,7 +43,7 @@ class _LoginState extends State<Login> {
             const SizedBox(height: 50),
 
             //Welcome Banner
-            Text(
+            const Text(
               "Welcome Back!",
               style: TextStyle(
                 fontSize: 32,
@@ -59,7 +59,7 @@ class _LoginState extends State<Login> {
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 hintText: 'Enter your email',
-                prefixIcon: Icon(Icons.email),
+                prefixIcon: const Icon(Icons.email),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -75,7 +75,7 @@ class _LoginState extends State<Login> {
               obscureText: true,
               decoration: InputDecoration(
                 hintText: 'Enter your password',
-                prefixIcon: Icon(Icons.lock),
+                prefixIcon: const Icon(Icons.lock),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -116,7 +116,7 @@ class _LoginState extends State<Login> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => SignIn()),
+                  MaterialPageRoute(builder: (context) => const SignIn()),
                 );
               },
               child: const Text(
