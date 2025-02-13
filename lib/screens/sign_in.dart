@@ -24,6 +24,10 @@ class _SignInState extends State<SignIn> {
   final stateController = TextEditingController();
   final pinCodeController = TextEditingController();
   final aadhaarController = TextEditingController();
+  final healthCondition = TextEditingController();
+  final healthAllergy = TextEditingController();
+  final healthSurgeries = TextEditingController();
+  final healthMedications = TextEditingController();
 
 
   // Page Controllers
@@ -31,17 +35,24 @@ class _SignInState extends State<SignIn> {
   final PageController signInSub1Controller = PageController();
   final PageController signInSub2Controller = PageController();
   final PageController signInSub3Controller = PageController();
+  final PageController signInSub4Controller = PageController();
 
-  String selectedGender = '', aadhaarError = "";
+  String selectedGender = '', aadhaarError = "", selectedBloodType = 'A', selectedRHFactor = '+';
   int mainPageIndex = 0, subPage1Index = 0, subPage2Index = 0, subPage3Index = 0;
 
+  final List<String> bloodType = [
+    'A', 'B', 'O', 'AB'
+  ];final List<String> bloodRHFactor = [
+    '+', '-'
+  ];
   final List<Map<String, String>> contacts = [];
+  final List<Map<String, String>> health = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("SignUp Page"),
+        title: const Text("SignUp", style: TextStyle(),),
       ),
       body: Column(
         children: [
@@ -57,8 +68,11 @@ class _SignInState extends State<SignIn> {
                 // Contact Info Page
                 _contactDetails(),
 
-                // Contact Info Page
+                // Identity Info Page
                 _identityDetails(),
+
+                // Health Info Page
+                _healthDetails(),
 
                 // Success Page
                 Center(
@@ -671,6 +685,179 @@ class _SignInState extends State<SignIn> {
                               onPressed: showAddContactDialog,
                               icon: const Icon(Icons.add_circle_outline, color: Colors.green),
                               label: const Text('Add Another Emergency Contact'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Previous & Next Buttons
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: ElevatedButton(
+                onPressed: () {
+                  signInController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeIn,
+                  );
+                },
+                child: const Text('Previous'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: ElevatedButton(
+                onPressed: () {
+                  signInController.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeIn,
+                  );
+                },
+                child: const Text('Next'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _healthDetails() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+          child: Text(
+            'Enter Your Health Details...',
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30.0),
+              child: PageView(
+                controller: signInSub3Controller,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                          const Text(
+                            'Blood Group',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+
+                          //Blood Group
+                          Row(
+                            children: [
+
+                              // Blood Type Dropdown
+                              Expanded(
+                                child: DropdownButtonFormField<String>(
+                                  value: selectedBloodType,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Blood Type',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  items: bloodType.map((String type) {
+                                    return DropdownMenuItem<String>(
+                                      value: type,
+                                      child: Text(type),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedBloodType = newValue ?? 'A';
+                                    });
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+
+                              // RH Factor Dropdown
+                              Expanded(
+                                child: DropdownButtonFormField<String>(
+                                  value: selectedRHFactor,
+                                  decoration: const InputDecoration(
+                                    labelText: 'RH Factor',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  items: bloodRHFactor.map((String factor) {
+                                    return DropdownMenuItem<String>(
+                                      value: factor,
+                                      child: Text(factor),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedRHFactor = newValue ?? '+';
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Emergency Contacts Section
+                          const Text(
+                            'Health History',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 20),
+
+                          //Condition
+                          const Text('Condition', style: TextStyle(fontSize: 18)),
+                          TextField(
+                            controller: healthCondition,
+                            decoration: const InputDecoration(
+                              hintText: 'If any?',
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          //Condition
+                          const Text('Allergies', style: TextStyle(fontSize: 18)),
+                          TextField(
+                            controller: healthAllergy,
+                            decoration: const InputDecoration(
+                              hintText: 'If any?',
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          //Condition
+                          const Text('Surgeries', style: TextStyle(fontSize: 18)),
+                          TextField(
+                            controller: healthSurgeries,
+                            decoration: const InputDecoration(
+                              hintText: 'If any?',
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          //Condition
+                          const Text('Medications', style: TextStyle(fontSize: 18)),
+                          TextField(
+                            controller: healthMedications,
+                            decoration: const InputDecoration(
+                              hintText: 'If any?',
                             ),
                           ),
                         ],
