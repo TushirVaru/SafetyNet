@@ -9,7 +9,6 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  // Verhoeff verfoeff = new Verhoeff();
 
   // Controllers for input fields
   final firstNameController = TextEditingController();
@@ -41,6 +40,9 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("SignUp Page"),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -50,22 +52,13 @@ class _SignInState extends State<SignIn> {
               children: [
 
                 // Basic Info Page
-                Padding(
-                  padding: const EdgeInsets.only(top: 40.0),
-                  child: _basicInfo(),//Placeholder(),//
-                ),
+                _basicInfo(),
 
                 // Contact Info Page
-                Padding(
-                  padding: const EdgeInsets.only(top: 40.0),
-                  child:  _contactDetails(),//Placeholder(),//
-                ),
+                _contactDetails(),
 
                 // Contact Info Page
-                Padding(
-                  padding: const EdgeInsets.only(top: 40.0),
-                  child:  _IdentityDetails(),//Placeholder(),//
-                ),
+                _identityDetails(),
 
                 // Success Page
                 Center(
@@ -340,9 +333,9 @@ class _SignInState extends State<SignIn> {
                           //Email
                           TextField(
                             controller: emailController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Email',
-                              border: const OutlineInputBorder(),
+                              border: OutlineInputBorder(),
                             ),
                           ),
                           const SizedBox(height: 15),
@@ -350,21 +343,13 @@ class _SignInState extends State<SignIn> {
                           //Contact details
                           TextField(
                             controller: contactController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               labelText: 'Contact',
-                              border: const OutlineInputBorder(),
+                              border: OutlineInputBorder(),
                             ),
                           ),
                           const SizedBox(height: 20),
-
-                          //Address hading
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text('Address', ),
-                            ],
-                          ),
-                          Divider(),
+                          
                           //Address
                           // Address Field
                           TextField(
@@ -395,7 +380,7 @@ class _SignInState extends State<SignIn> {
                                 child: TextField(
                                   controller: pinCodeController,
                                   decoration: const InputDecoration(
-                                    labelText: 'Pincode',
+                                    labelText: 'Pin Code',
                                     border: OutlineInputBorder(),
                                   ),
                                 ),
@@ -472,12 +457,12 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  Widget _IdentityDetails() {
+  Widget _identityDetails() {
     String? phoneError;
     final nameController = TextEditingController();
     final phoneController = TextEditingController();
 
-    void _showAddContactDialog() {
+    void showAddContactDialog() {
 
       showDialog(
         context: context,
@@ -485,25 +470,25 @@ class _SignInState extends State<SignIn> {
           return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                title: Text('Add Emergency Contact'),
+                title: const Text('Add Emergency Contact'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Name',
                         border: OutlineInputBorder(),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: phoneController,
                       keyboardType: TextInputType.phone,
                       maxLength: 10,
                       decoration: InputDecoration(
                         labelText: 'Phone Number',
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                         errorText: phoneError,
                       ),
                       onChanged: (value) {
@@ -521,7 +506,7 @@ class _SignInState extends State<SignIn> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text('Cancel'),
+                    child: const Text('Cancel'),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -537,7 +522,7 @@ class _SignInState extends State<SignIn> {
                         Navigator.pop(context);
                       }
                     },
-                    child: Text('Add'),
+                    child: const Text('Add'),
                   ),
                 ],
               );
@@ -547,16 +532,16 @@ class _SignInState extends State<SignIn> {
       );
     }
 
-    void _showDeleteDialog(int index) {
+    void showDeleteDialog(int index) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Delete Contact'),
-          content: Text('Are you sure you want to delete this emergency contact?'),
+          title: const Text('Delete Contact'),
+          content: const Text('Are you sure you want to delete this emergency contact?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -566,7 +551,7 @@ class _SignInState extends State<SignIn> {
                 Navigator.pop(context);
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
           ],
         ),
@@ -606,7 +591,7 @@ class _SignInState extends State<SignIn> {
                             maxLength: 12,
                             decoration: InputDecoration(
                               labelText: 'Aadhaar Card Number',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               errorText: aadhaarError.isNotEmpty ? aadhaarError : null,
                             ),
                             onChanged: (value) {
@@ -624,17 +609,17 @@ class _SignInState extends State<SignIn> {
                           const SizedBox(height: 20),
 
                           // Emergency Contacts Section
-                          Text(
+                          const Text(
                             'Emergency Contact',
                             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                           ),
                           ListView.builder(
                             shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             itemCount: contacts.length,
                             itemBuilder: (context, index) {
                               return Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 child: Row(
                                   children: [
                                     Expanded(
@@ -643,16 +628,16 @@ class _SignInState extends State<SignIn> {
                                         children: [
                                           Text(
                                             contacts[index]['name'] ?? '',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               color: Colors.black,
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
-                                          SizedBox(height: 4),
+                                          const SizedBox(height: 4),
                                           Text(
-                                            " ${contacts[index]['phone']}",
-                                            style: TextStyle(
+                                            " ${contacts[index]['phone'] ?? ''}", // Default to an empty string
+                                            style: const TextStyle(
                                               color: Colors.black,
                                               fontSize: 14,
                                             ),
@@ -661,14 +646,14 @@ class _SignInState extends State<SignIn> {
                                       ),
                                     ),
                                     PopupMenuButton(
-                                      icon: Icon(Icons.more_vert, color: Colors.black), // Fixed color issue
+                                      icon: const Icon(Icons.more_vert, color: Colors.black), // Fixed color issue
                                       onSelected: (value) {
                                         if (value == 'delete') {
-                                          _showDeleteDialog(index);
+                                          showDeleteDialog(index);
                                         }
                                       },
                                       itemBuilder: (context) => [
-                                        PopupMenuItem(
+                                        const PopupMenuItem(
                                           value: 'delete',
                                           child: Text('Delete'),
                                         ),
@@ -683,9 +668,9 @@ class _SignInState extends State<SignIn> {
                           // Add button
                           Center(
                             child: TextButton.icon(
-                              onPressed: _showAddContactDialog,
-                              icon: Icon(Icons.add_circle_outline, color: Colors.green),
-                              label: Text('Add Another Emergency Contact'),
+                              onPressed: showAddContactDialog,
+                              icon: const Icon(Icons.add_circle_outline, color: Colors.green),
+                              label: const Text('Add Another Emergency Contact'),
                             ),
                           ),
                         ],
