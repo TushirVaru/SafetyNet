@@ -651,7 +651,7 @@ class _SignInState extends State<SignIn> {
                                           ),
                                           SizedBox(height: 4),
                                           Text(
-                                            " - ${contacts[index]['phone']}",
+                                            " ${contacts[index]['phone']}",
                                             style: TextStyle(
                                               color: Colors.black,
                                               fontSize: 14,
