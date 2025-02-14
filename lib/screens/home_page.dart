@@ -49,7 +49,7 @@ class HomePageState extends State<HomePage> {
         backgroundColor: const Color(0xff1b1725),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.white,),
             onPressed: () async {
               await prefs.setBool("isLoggedIn", false);
               Navigator.pushAndRemoveUntil(
