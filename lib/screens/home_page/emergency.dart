@@ -53,58 +53,75 @@ class EmergencyState extends State<Emergency> {
   }
 
   void _addOrEditCard({int? index}) {
-    TextEditingController nameController = TextEditingController(text: index != null ? forUsCards[index].name : '');
-    TextEditingController descController = TextEditingController(text: index != null ? forUsCards[index].desc : '');
-    TextEditingController deptController = TextEditingController(text: index != null ? forUsCards[index].dept : '');
+    TextEditingController nameController = TextEditingController(
+        text: index != null ? forUsCards[index].name : '');
+    TextEditingController descController = TextEditingController(
+        text: index != null ? forUsCards[index].desc : '');
+    TextEditingController deptController = TextEditingController(
+        text: index != null ? forUsCards[index].dept : '');
     bool isForUs = index != null ? forUsCards[index].isForUs : true;
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(index == null ? "Add Card" : "Edit Card"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: "Name"),
-              ),
-              TextField(
-                controller: descController,
-                decoration: const InputDecoration(labelText: "Description"),
-              ),
-              TextField(
-                controller: deptController,
-                decoration: const InputDecoration(labelText: "Department"),
-              ),
-              DropdownButtonFormField<bool>(
-                value: isForUs,
-                onChanged: (value) {
-                  if (value != null) {
-                    isForUs = value;
-                  }
-                },
-                items: const [
-                  DropdownMenuItem(value: true, child: Text("For Us")),
-                  DropdownMenuItem(value: false, child: Text("For Others")),
-                ],
-                decoration: const InputDecoration(labelText: "Category"),
-              ),
-            ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Center(
+            child: Text(
+              index == null ? "Add Card" : "Edit Card",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildTextField(nameController, "Name", Icons.person),
+                _buildTextField(descController, "Description", Icons.description),
+                _buildTextField(deptController, "Department", Icons.business),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<bool>(
+                  value: isForUs,
+                  onChanged: (value) {
+                    if (value != null) {
+                      isForUs = value;
+                    }
+                  },
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: true, child: Text("For You")),
+                    DropdownMenuItem(value: false, child: Text("For Others")),
+                  ],
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
+              child: const Text("Cancel", style: TextStyle(color: Colors.red)),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff1b1725),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
               onPressed: () {
                 if (nameController.text.isNotEmpty && deptController.text.isNotEmpty) {
                   setState(() {
                     CardModel card = CardModel(
-                        nameController.text, descController.text, deptController.text, isForUs
-                    );
+                        nameController.text, descController.text, deptController.text, isForUs);
                     if (index == null) {
                       if (isForUs) {
                         forUsCards.add(card);
@@ -118,20 +135,37 @@ class EmergencyState extends State<Emergency> {
                         forOthersCards[index] = card;
                       }
                     }
-                    print("----------------------");
-                    print("ForUs: ${forUsCards[0]} and ForOthersL ${forOthersCards[0]}");
-                    print("----------------------");
                     saveforUsCards();
                     saveforOthersCards();
                   });
                   Navigator.pop(context);
                 }
               },
-              child: Text(index == null ? "Add" : "Update"),
+              child: Text(index == null ? "Add" : "Update", style: const TextStyle(color: Colors.white),),
             ),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon, color: Colors.blueAccent),
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        ),
+      ),
     );
   }
 
@@ -154,8 +188,8 @@ class EmergencyState extends State<Emergency> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("For You", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
-                    Divider(height: 10, thickness: 2, color: Colors.black,),
+                    const Text("For You", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
+                    const Divider(height: 10, thickness: 2, color: Colors.black,),
                     Expanded(
                       child: GridView.builder(
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -200,7 +234,14 @@ class EmergencyState extends State<Emergency> {
                                                   style: const TextStyle(fontSize: 29, color: Colors.black, fontWeight: FontWeight.bold),
                                                 ),
                                               ),
+
+                                              //PopUp for edit and delete options of card
                                               PopupMenuButton<String>(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                elevation: 8,
+                                                color: Colors.white,
                                                 onSelected: (value) {
                                                   if (value == 'edit') {
                                                     _addOrEditCard(index: index);
@@ -209,25 +250,33 @@ class EmergencyState extends State<Emergency> {
                                                   }
                                                 },
                                                 itemBuilder: (context) => [
+                                                  //Edit Option
                                                   const PopupMenuItem(
                                                     value: 'edit',
                                                     child: Row(
                                                       children: [
                                                         Icon(Icons.edit, color: Colors.blue),
-                                                        SizedBox(width: 8),
-                                                        Text("Edit"),
+                                                        SizedBox(width: 10),
+                                                        Text(
+                                                          "Edit",
+                                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                                        ),
                                                       ],
-                                                    ),
+                                                    )
                                                   ),
+                                                  //Delete Option
                                                   const PopupMenuItem(
                                                     value: 'delete',
                                                     child: Row(
                                                       children: [
                                                         Icon(Icons.delete, color: Colors.red),
-                                                        SizedBox(width: 8),
-                                                        Text("Delete"),
+                                                        SizedBox(width: 10),
+                                                        Text(
+                                                          "Delete",
+                                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                                        ),
                                                       ],
-                                                    ),
+                                                    )
                                                   ),
                                                 ],
                                               ),
@@ -254,8 +303,8 @@ class EmergencyState extends State<Emergency> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("For Others", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
-                    Divider(height: 10, thickness: 2, color: Colors.black,),
+                    const Text("For Others", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
+                    const Divider(height: 10, thickness: 2, color: Colors.black,),
                     Expanded(
                       child: GridView.builder(
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

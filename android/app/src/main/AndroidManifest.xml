@@ -8,10 +8,10 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.CALL_PHONE"/>
+
 
     <application
-        android:label="safety_net"
+        android:label="SafetyNet"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

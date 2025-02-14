@@ -77,14 +77,8 @@ class _SignInState extends State<SignIn> {
   }
 
   bool _isValid() {
-    print("________________________________");
-    print("Current Page: ${currentPage}");
-    print("________________________________");
     switch (currentPage) {
       case 0: // Page 1: Personal Details
-        print("________________________________");
-        print("In case 0");
-        print("________________________________");
         return firstNameController.text.isNotEmpty &&
             lastNameController.text.isNotEmpty &&
             dateController.text.isNotEmpty &&
@@ -124,6 +118,15 @@ class _SignInState extends State<SignIn> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("SignUp"),
+        actions: [
+          TextButton(
+              onPressed: (){
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Login()), (route) => false,
+                );
+              }, child: const Text("Already Registered?"))
+        ],
       ),
       body: Column(
         children: [
@@ -229,10 +232,10 @@ class _SignInState extends State<SignIn> {
                         }
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text("Please fill all required fields correctly"),
+                          const SnackBar(
+                            content: Text("Please fill all required fields correctly"),
                             backgroundColor: Colors.red,
-                            duration: const Duration(milliseconds: 2500),
+                            duration: Duration(milliseconds: 2500),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -282,6 +285,8 @@ class _SignInState extends State<SignIn> {
               child: Column(
                 children: [
                   const SizedBox(height: 8),
+
+                  //Name fields
                   TextField(
                     controller: firstNameController,
                     decoration: const InputDecoration(
@@ -290,7 +295,6 @@ class _SignInState extends State<SignIn> {
                     ),
                   ),
                   const SizedBox(height: 15),
-
                   TextField(
                     controller: middleNameController,
                     decoration: const InputDecoration(
@@ -299,7 +303,6 @@ class _SignInState extends State<SignIn> {
                     ),
                   ),
                   const SizedBox(height: 15),
-
                   TextField(
                     controller: lastNameController,
                     decoration: const InputDecoration(
@@ -309,6 +312,7 @@ class _SignInState extends State<SignIn> {
                   ),
                   const SizedBox(height: 15),
 
+                  //DOB
                   TextField(
                     controller: dateController,
                     readOnly: true,
@@ -343,6 +347,7 @@ class _SignInState extends State<SignIn> {
                   ),
                   const SizedBox(height: 15),
 
+                  //Age Field
                   TextField(
                     controller: ageController,
                     readOnly: true,
@@ -353,47 +358,45 @@ class _SignInState extends State<SignIn> {
                   ),
                   const SizedBox(height: 20),
 
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+
+                  //gender
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Text('Gender:', style: TextStyle(fontSize: 16)),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Radio<String>(
-                            value: "Male",
-                            groupValue: selectedGender,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedGender = value!;
-                              });
-                            },
-                          ),
-                          const Text('Male'),
-                          const SizedBox(width: 20),
-                          Radio<String>(
-                            value: "Female",
-                            groupValue: selectedGender,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedGender = value!;
-                              });
-                            },
-                          ),
-                          const Text('Female'),
-                          const SizedBox(width: 20),
-                          Radio<String>(
-                            value: "Other",
-                            groupValue: selectedGender,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedGender = value!;
-                              });
-                            },
-                          ),
-                          const Text('Other'),
-                        ],
+
+                      const Text('Gender:', style: TextStyle(fontSize: 18)),
+                      Radio<String>(
+                        value: "Male",
+                        groupValue: selectedGender,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedGender = value!;
+                          });
+                        },
                       ),
+                      const Text('Male'),
+                      const SizedBox(width: 20),
+                      Radio<String>(
+                        value: "Female",
+                        groupValue: selectedGender,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedGender = value!;
+                          });
+                        },
+                      ),
+                      const Text('Female'),
+                      const SizedBox(width: 20),
+                      Radio<String>(
+                        value: "Other",
+                        groupValue: selectedGender,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedGender = value!;
+                          });
+                        },
+                      ),
+                      const Text('Other'),
                     ],
                   ),
                   const SizedBox(height: 20),

@@ -29,13 +29,13 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xff1b1725)
       ),
 
       body: Container(
         padding: const EdgeInsets.all(16),
         decoration: const BoxDecoration(
-          color: Colors.blue
+          color: Color(0xff1b1725)
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -97,7 +97,7 @@ class _LoginState extends State<Login> {
               ),
               child: const Text(
                 'Login',
-                style: TextStyle(color: Colors.blue, fontSize: 18),
+                style: TextStyle(color: Color(0xff1b1725), fontSize: 18),
               ),
             ),
             const SizedBox(height: 20),
