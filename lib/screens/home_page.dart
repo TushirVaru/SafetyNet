@@ -152,65 +152,70 @@ class HomePageState extends State<HomePage> {
 
             final card = cards[index];
 
-            return Card(
-              color: const Color(0xFFE3F2FD),
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            card.name,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 29, fontWeight: FontWeight.bold),
+            return GestureDetector(
+              onTap: () {
+                showConfirmDialog(context);
+              },
+              child: Card(
+                color: const Color(0xFFE3F2FD),
+                elevation: 10,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              card.name,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 29, fontWeight: FontWeight.bold),
+                            ),
                           ),
-                        ),
-                        PopupMenuButton<String>(
-                          onSelected: (value) {
-                            if (value == 'edit') {
-                              _addOrEditCard(index: index);
-                            } else if (value == 'delete') {
-                              _deleteCard(index);
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit, color: Colors.blue),
-                                  SizedBox(width: 8),
-                                  Text("Edit"),
-                                ],
+                          PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'edit') {
+                                _addOrEditCard(index: index);
+                              } else if (value == 'delete') {
+                                _deleteCard(index);
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.edit, color: Colors.blue),
+                                    SizedBox(width: 8),
+                                    Text("Edit"),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete, color: Colors.red),
-                                  SizedBox(width: 8),
-                                  Text("Delete"),
-                                ],
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete, color: Colors.red),
+                                    SizedBox(width: 8),
+                                    Text("Delete"),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Text(
-                      "Dept: ${card.dept}",
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
+                            ],
+                          ),
+                        ],
+                      ),
+                      Text(
+                        "Dept: ${card.dept}",
+                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -219,6 +224,27 @@ class HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  void showConfirmDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirmation"),
+        content: const Text("Are you sure you want to proceed?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false), // Close dialog
+            child: const Text("Cancel", style: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), // Confirm action
+            child: const Text("Confirm", style: TextStyle(color: Colors.blue)),
+          ),
+        ],
+      ),
+    );
+  }
+
 }
 
 // Model class for Card
