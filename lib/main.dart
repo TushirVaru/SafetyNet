@@ -29,17 +29,19 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: isFirstTime ? const OnboardingScreen() : isLoggedIn ? AccidentDetectionScreen() : const Login(),
+      home: isFirstTime ? const OnboardingScreen() : isLoggedIn ? const AccidentDetectionScreen() : const Login(),
     );
   }
 }
 
 class AccidentDetectionScreen extends StatefulWidget {
+  const AccidentDetectionScreen({super.key});
+
   @override
-  _AccidentDetectionScreenState createState() => _AccidentDetectionScreenState();
+  AccidentDetectionScreenState createState() => AccidentDetectionScreenState();
 }
 
-class _AccidentDetectionScreenState extends State<AccidentDetectionScreen> {
+class AccidentDetectionScreenState extends State<AccidentDetectionScreen> {
   late StreamSubscription<AccelerometerEvent> _accelerometerSubscription;
   late StreamSubscription<GyroscopeEvent> _gyroscopeSubscription;
 
@@ -93,7 +95,7 @@ class _AccidentDetectionScreenState extends State<AccidentDetectionScreen> {
   }
 
   void _startResponseTimer() {
-    Timer(Duration(seconds: 10), () {
+    Timer(const Duration(seconds: 10), () {
       if (isAccidentDetected) {
         _sendEmergencyAlert();
       }
@@ -105,7 +107,7 @@ class _AccidentDetectionScreenState extends State<AccidentDetectionScreen> {
   }
 
   void _sendEmergencyAlert() {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Emergency alert sent!")));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Emergency alert sent!")));
   }
 
   @override
@@ -118,7 +120,7 @@ class _AccidentDetectionScreenState extends State<AccidentDetectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Accident Detection')),
+      appBar: AppBar(title: const Text('Accident Detection')),
       body: Center(
         child: Text(
           isAccidentDetected ? "Accident Detected! Please Respond!" : "Monitoring Sensors for Accidents...",
