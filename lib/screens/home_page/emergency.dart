@@ -432,9 +432,14 @@ class EmergencyState extends State<Emergency> {
             onPressed: () => Navigator.pop(context, false), // Close dialog
             child: const Text("Cancel", style: TextStyle(fontSize: 19, color: Color(0xcf534b62))),
           ),
-          TextButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff1b1725),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
             onPressed: () => Navigator.pop(context, true), // Confirm action
-            child: const Text("Confirm", style: TextStyle(fontSize: 19, color: Color(0xff226ce0))),
+            child: const Text("Confirm", style: TextStyle(fontSize: 19, color: Colors.white)),
           ),
         ],
       ),

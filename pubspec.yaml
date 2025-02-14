@@ -12,7 +12,7 @@ dependencies:
   shared_preferences: ^2.3.3
   smooth_page_indicator: ^1.2.0+3
   cupertino_icons: ^1.0.6
-#  sensors_plus: ^6.1.1
+#  sensors_plus: ^3.0.4
 #  geolocator: ^10.1.0
 #  flutter_compass: ^0.8.0
 #  flutter_background_service: ^2.2.0

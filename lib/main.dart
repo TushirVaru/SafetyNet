@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:flutter_background_service/flutter_background_service.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // import 'package:sensors_plus/sensors_plus.dart';
+// import 'dart:async';
+
 // import 'package:rxdart/rxdart.dart';
 import 'package:SafetyNet/screens/home_page.dart';
 import 'package:SafetyNet/screens/login.dart';
@@ -11,8 +13,6 @@ import 'package:SafetyNet/screens/on_boarding.dart';
 // final FlutterLocalNotificationsPlugin notificationsPlugin = FlutterLocalNotificationsPlugin();
 // final BehaviorSubject<String?> selectNotificationSubject = BehaviorSubject<String?>();
 // final FlutterBackgroundService backgroundService = FlutterBackgroundService();
-
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +28,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final bool isLoggedIn, isFirstTime;
+
   const MyApp({super.key, required this.isLoggedIn, required this.isFirstTime});
 
   @override
@@ -36,7 +37,9 @@ class MyApp extends StatelessWidget {
       title: 'SafetyNet',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true),
-      home: isFirstTime ? const OnboardingScreen() : (isLoggedIn ? const HomePage() : const Login()),
+      home: isFirstTime ? const OnboardingScreen() : (isLoggedIn
+          ? const HomePage()
+          : const Login()),
     );
   }
 }

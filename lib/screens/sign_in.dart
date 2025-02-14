@@ -63,13 +63,17 @@ class _SignInState extends State<SignIn> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
               signInController.nextPage(duration: const Duration(microseconds: 300), curve: Curves.easeIn);
               Navigator.pop(context);
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Confirm'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff1b1725),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+            child: const Text('Confirm', style: TextStyle(color: Colors.white),),
           ),
         ],
       ),
@@ -117,7 +121,9 @@ class _SignInState extends State<SignIn> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("SignUp"),
+        backgroundColor: Color(0xff1b1725),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text("SignUp", style: TextStyle(color: Colors.white)),
         actions: [
           TextButton(
               onPressed: (){
@@ -125,7 +131,7 @@ class _SignInState extends State<SignIn> {
                   context,
                   MaterialPageRoute(builder: (context) => const Login()), (route) => false,
                 );
-              }, child: const Text("Already Registered?"))
+              }, child: const Text("Already Registered?", style: TextStyle(color: Colors.white)))
         ],
       ),
       body: Column(
@@ -159,13 +165,18 @@ class _SignInState extends State<SignIn> {
                       const Text('You are now Registered.', style: TextStyle(fontSize: 16)),
                       const SizedBox(height: 10),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff1b1725),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        ),
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder: (context) => const Login()),
                           );
                         },
-                        child: const Text("Go to Login Page"),
+                        child: const Text("Go to Login Page", style: TextStyle(color: Colors.white),),
                       ),
                     ],
                   ),
@@ -192,17 +203,16 @@ class _SignInState extends State<SignIn> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                      backgroundColor: const Color(0xff1b1725),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.arrow_back, size: 18),
                         SizedBox(width: 8),
-                        Text('Previous'),
+                        Text('Previous', style: TextStyle(color: Colors.white),),
                       ],
                     ),
                   ),
@@ -213,13 +223,18 @@ class _SignInState extends State<SignIn> {
                       5, // Updated from 4 → 5 because there are 5 pages before confirmation
                           (index) => Padding(
                         padding: const EdgeInsets.only(right: 4),
-                        child: DotIndicator(index == currentPage),
+                        child: dotIndicator(index == currentPage),
                       ),
                     ),
                   ),
 
                   // Next button
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff1b1725),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    ),
                     onPressed: () {
                       if (_isValid()) {
                         if (currentPage < 4) {
@@ -241,16 +256,10 @@ class _SignInState extends State<SignIn> {
                         );
                       }
                     },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(currentPage == 4 ? 'Confirm' : 'Next'),
+                        Text(currentPage == 4 ? 'Confirm' : 'Next', style: TextStyle(color: Colors.white),),
                         const SizedBox(width: 8),
                         const Icon(Icons.arrow_forward, size: 18),
                       ],
@@ -362,41 +371,63 @@ class _SignInState extends State<SignIn> {
                   //gender
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const Padding(
+                        padding: EdgeInsets.only(top: 12.0),
+                        child: Text('Gender:', style: TextStyle(fontSize: 18)),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
 
-                      const Text('Gender:', style: TextStyle(fontSize: 18)),
-                      Radio<String>(
-                        value: "Male",
-                        groupValue: selectedGender,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedGender = value!;
-                          });
-                        },
+                          Row(
+                            children: [
+                              Radio<String>(
+                                value: "Male",
+                                groupValue: selectedGender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedGender = value!;
+                                  });
+                                },
+                              ),
+                              const Text('Male'),
+                            ],
+                          ),
+                          const SizedBox(width: 20),
+                          Row(
+                            children: [
+                              Radio<String>(
+                                value: "Female",
+                                groupValue: selectedGender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedGender = value!;
+                                  });
+                                },
+                              ),
+                              const Text('Female'),
+                            ],
+                          ),
+                          const SizedBox(width: 20),
+                          Row(
+                            children: [
+                              Radio<String>(
+                                value: "Other",
+                                groupValue: selectedGender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedGender = value!;
+                                  });
+                                },
+                              ),
+                              const Text('Other'),
+                            ],
+                          ),
+                        ],
                       ),
-                      const Text('Male'),
-                      const SizedBox(width: 20),
-                      Radio<String>(
-                        value: "Female",
-                        groupValue: selectedGender,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedGender = value!;
-                          });
-                        },
-                      ),
-                      const Text('Female'),
-                      const SizedBox(width: 20),
-                      Radio<String>(
-                        value: "Other",
-                        groupValue: selectedGender,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedGender = value!;
-                          });
-                        },
-                      ),
-                      const Text('Other'),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -533,7 +564,7 @@ class _SignInState extends State<SignIn> {
         context: context,
         builder: (context) {
           return StatefulBuilder(
-            builder: (context, setState) {
+            builder: (context, setDialogState) {
               return AlertDialog(
                 title: const Text('Add Emergency Contact'),
                 content: Column(
@@ -557,12 +588,10 @@ class _SignInState extends State<SignIn> {
                         errorText: phoneError,
                       ),
                       onChanged: (value) {
-                        setState(() {
-                          if (RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-                            phoneError = null; // Valid input
-                          } else {
-                            phoneError = "Enter a valid 10-digit number"; // Error message
-                          }
+                        setDialogState(() {
+                          phoneError = RegExp(r'^[0-9]{10}$').hasMatch(value)
+                              ? null
+                              : "Enter a valid 10-digit number";
                         });
                       },
                     ),
@@ -575,7 +604,9 @@ class _SignInState extends State<SignIn> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      if (nameController.text.isNotEmpty && phoneController.text.isNotEmpty && phoneError == null) {
+                      if (nameController.text.isNotEmpty &&
+                          phoneController.text.isNotEmpty &&
+                          phoneError == null) {
                         setState(() {
                           contacts.add({
                             'name': nameController.text,
@@ -642,7 +673,7 @@ class _SignInState extends State<SignIn> {
                 children: [
                   const SizedBox(height: 8),
 
-                  // Aadhaar
+                  // Aadhaar Card Input
                   TextField(
                     controller: aadhaarController,
                     keyboardType: TextInputType.number,
@@ -653,15 +684,11 @@ class _SignInState extends State<SignIn> {
                       errorText: aadhaarError.isNotEmpty ? aadhaarError : null,
                     ),
                     onChanged: (value) {
-                      if (value.length == 12) {
-                        setState(() {
-                          aadhaarError = Verhoeff.validateAadhaar(value) ? "" : "❌ Invalid Aadhaar Number";
-                        });
-                      } else {
-                        setState(() {
-                          aadhaarError = "";
-                        });
-                      }
+                      setState(() {
+                        aadhaarError = value.length == 12 && !Verhoeff.validateAadhaar(value)
+                            ? "❌ Invalid Aadhaar Number"
+                            : "";
+                      });
                     },
                   ),
                   const SizedBox(height: 20),
@@ -677,7 +704,8 @@ class _SignInState extends State<SignIn> {
                     itemCount: contacts.length,
                     itemBuilder: (context, index) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                         child: Row(
                           children: [
                             Expanded(
@@ -694,7 +722,7 @@ class _SignInState extends State<SignIn> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    " ${contacts[index]['phone'] ?? ''}", // Default to an empty string
+                                    " ${contacts[index]['phone'] ?? ''}",
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
@@ -704,7 +732,8 @@ class _SignInState extends State<SignIn> {
                               ),
                             ),
                             PopupMenuButton(
-                              icon: const Icon(Icons.more_vert, color: Colors.black), // Fixed color issue
+                              icon: const Icon(Icons.more_vert,
+                                  color: Colors.black),
                               onSelected: (value) {
                                 if (value == 'delete') {
                                   showDeleteDialog(index);
@@ -727,7 +756,8 @@ class _SignInState extends State<SignIn> {
                   Center(
                     child: TextButton.icon(
                       onPressed: showAddContactDialog,
-                      icon: const Icon(Icons.add_circle_outline, color: Colors.green),
+                      icon: const Icon(Icons.add_circle_outline,
+                          color: Colors.green),
                       label: const Text('Add Another Emergency Contact'),
                     ),
                   ),
@@ -970,7 +1000,7 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  DotIndicator(bool isActive) {
+  dotIndicator(bool isActive) {
     return AnimatedContainer(
       duration: const Duration(microseconds: 300),
       height: isActive? 15 : 6,
