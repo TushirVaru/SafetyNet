@@ -162,19 +162,7 @@ class _SignInState extends State<SignIn> {
                             ),
                           ),
                           const SizedBox(height: 15),
-                        ],
-                      ),
-                    ),
-                  ),
 
-                  // DOB, Gender & Age field
-                  SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 8),
-                          // DOB Field
                           TextField(
                             controller: dateController,
                             readOnly: true,
@@ -267,11 +255,25 @@ class _SignInState extends State<SignIn> {
                                 ],
                               ),
                             ],
-                          ),
+                          )
                         ],
                       ),
                     ),
                   ),
+
+                  // DOB, Gender & Age field
+                  // SingleChildScrollView(
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 20),
+                  //     child: Column(
+                  //       children: [
+                  //         const SizedBox(height: 8),
+                  //         // DOB Field
+                  //         ,
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -287,7 +289,7 @@ class _SignInState extends State<SignIn> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: ElevatedButton(
                 onPressed: () {
-                  signInSub1Controller.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+                  signInController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
                 },
                 child: const Text('Previous'),
               ),
@@ -298,11 +300,7 @@ class _SignInState extends State<SignIn> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: ElevatedButton(
                 onPressed: () {
-                  if (signInSub1Controller.hasClients && signInSub1Controller.page != null && signInSub1Controller.page! >= 1) {
-                    signInController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
-                  } else {
-                    signInSub1Controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
-                  }
+                  signInController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
                 },
                 child: const Text('Next'),
               ),
