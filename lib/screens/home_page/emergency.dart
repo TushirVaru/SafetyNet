@@ -53,9 +53,10 @@ class EmergencyState extends State<Emergency> {
   }
 
   void _addOrEditCard({int? index}) {
-    String name = index != null ? forUsCards[index].name : '';
-    String desc = index != null ? forUsCards[index].desc : '';
-    String dept = index != null ? forUsCards[index].dept : '';
+    TextEditingController nameController = TextEditingController(text: index != null ? forUsCards[index].name : '');
+    TextEditingController descController = TextEditingController(text: index != null ? forUsCards[index].desc : '');
+    TextEditingController deptController = TextEditingController(text: index != null ? forUsCards[index].dept : '');
+    bool isForUs = index != null ? forUsCards[index].isForUs : true;
 
     showDialog(
       context: context,
@@ -66,19 +67,29 @@ class EmergencyState extends State<Emergency> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: TextEditingController(text: name),
-                onChanged: (value) => name = value,
+                controller: nameController,
                 decoration: const InputDecoration(labelText: "Name"),
               ),
               TextField(
-                controller: TextEditingController(text: desc),
-                onChanged: (value) => desc = value,
+                controller: descController,
                 decoration: const InputDecoration(labelText: "Description"),
               ),
               TextField(
-                controller: TextEditingController(text: dept),
-                onChanged: (value) => dept = value,
+                controller: deptController,
                 decoration: const InputDecoration(labelText: "Department"),
+              ),
+              DropdownButtonFormField<bool>(
+                value: isForUs,
+                onChanged: (value) {
+                  if (value != null) {
+                    isForUs = value;
+                  }
+                },
+                items: const [
+                  DropdownMenuItem(value: true, child: Text("For Us")),
+                  DropdownMenuItem(value: false, child: Text("For Others")),
+                ],
+                decoration: const InputDecoration(labelText: "Category"),
               ),
             ],
           ),
@@ -89,14 +100,29 @@ class EmergencyState extends State<Emergency> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (name.isNotEmpty && dept.isNotEmpty) {
+                if (nameController.text.isNotEmpty && deptController.text.isNotEmpty) {
                   setState(() {
+                    CardModel card = CardModel(
+                        nameController.text, descController.text, deptController.text, isForUs
+                    );
                     if (index == null) {
-                      forUsCards.add(CardModel(name, desc, dept, true));
+                      if (isForUs) {
+                        forUsCards.add(card);
+                      } else {
+                        forOthersCards.add(card);
+                      }
                     } else {
-                      forUsCards[index] = CardModel(name, desc, dept, true);
+                      if (isForUs) {
+                        forUsCards[index] = card;
+                      } else {
+                        forOthersCards[index] = card;
+                      }
                     }
+                    print("----------------------");
+                    print("ForUs: ${forUsCards[0]} and ForOthersL ${forOthersCards[0]}");
+                    print("----------------------");
                     saveforUsCards();
+                    saveforOthersCards();
                   });
                   Navigator.pop(context);
                 }
@@ -123,98 +149,209 @@ class EmergencyState extends State<Emergency> {
         color: const Color(0xffF0F0F0),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 3 / 2,
-              ),
-              itemCount: forUsCards.length,
-              itemBuilder: (context, index) {
+          child: PageView(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("For You", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
+                    Divider(height: 10, thickness: 2, color: Colors.black,),
+                    Expanded(
+                      child: GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 3 / 2,
+                        ),
+                        itemCount: forUsCards.length,
+                        itemBuilder: (context, index) {
 
-                final card = forUsCards[index];
+                          final card = forUsCards[index];
 
-                return SizedBox(
-                  child: GestureDetector(
-                    onTap: () {
-                      showConfirmDialog(context);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 5.0),
-                      child: SizedBox(
-                        child: Card(
-                          // elevation: 6,
-                          color: const Color(0xFFFFFFFF),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side: const BorderSide(color: Colors.black, width: 1.5)
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        card.name,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 29, color: Colors.black, fontWeight: FontWeight.bold),
+                          return SizedBox(
+                            child: GestureDetector(
+                              onTap: () {
+                                showConfirmDialog(context);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 5.0),
+                                child: SizedBox(
+                                  child: Card(
+                                    // elevation: 6,
+                                    color: const Color(0xFFFFFFFF),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                        side: const BorderSide(color: Colors.black, width: 1.5)
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  card.name,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(fontSize: 29, color: Colors.black, fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
+                                              PopupMenuButton<String>(
+                                                onSelected: (value) {
+                                                  if (value == 'edit') {
+                                                    _addOrEditCard(index: index);
+                                                  } else if (value == 'delete') {
+                                                    _deleteCard(index);
+                                                  }
+                                                },
+                                                itemBuilder: (context) => [
+                                                  const PopupMenuItem(
+                                                    value: 'edit',
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(Icons.edit, color: Colors.blue),
+                                                        SizedBox(width: 8),
+                                                        Text("Edit"),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const PopupMenuItem(
+                                                    value: 'delete',
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(Icons.delete, color: Colors.red),
+                                                        SizedBox(width: 8),
+                                                        Text("Delete"),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            "Dept: ${card.dept}",
+                                            style: const TextStyle(fontSize: 17, color: Colors.black),
+                                          ),
+                                          const SizedBox(height: 8),
+                                        ],
                                       ),
                                     ),
-                                    PopupMenuButton<String>(
-                                      onSelected: (value) {
-                                        if (value == 'edit') {
-                                          _addOrEditCard(index: index);
-                                        } else if (value == 'delete') {
-                                          _deleteCard(index);
-                                        }
-                                      },
-                                      itemBuilder: (context) => [
-                                        const PopupMenuItem(
-                                          value: 'edit',
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.edit, color: Colors.blue),
-                                              SizedBox(width: 8),
-                                              Text("Edit"),
-                                            ],
-                                          ),
-                                        ),
-                                        const PopupMenuItem(
-                                          value: 'delete',
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.delete, color: Colors.red),
-                                              SizedBox(width: 8),
-                                              Text("Delete"),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                                Text(
-                                  "Dept: ${card.dept}",
-                                  style: const TextStyle(fontSize: 17, color: Colors.black),
-                                ),
-                                const SizedBox(height: 8),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("For Others", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
+                    Divider(height: 10, thickness: 2, color: Colors.black,),
+                    Expanded(
+                      child: GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 3 / 2,
+                        ),
+                        itemCount: forOthersCards.length,
+                        itemBuilder: (context, index) {
+
+                          final card = forOthersCards[index];
+
+                          return SizedBox(
+                            child: GestureDetector(
+                              onTap: () {
+                                showConfirmDialog(context);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 5.0),
+                                child: SizedBox(
+                                  child: Card(
+                                    // elevation: 6,
+                                    color: const Color(0xFFFFFFFF),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                        side: const BorderSide(color: Colors.black, width: 1.5)
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(15.0),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  card.name,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(fontSize: 29, color: Colors.black, fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
+                                              PopupMenuButton<String>(
+                                                onSelected: (value) {
+                                                  if (value == 'edit') {
+                                                    _addOrEditCard(index: index);
+                                                  } else if (value == 'delete') {
+                                                    _deleteCard(index);
+                                                  }
+                                                },
+                                                itemBuilder: (context) => [
+                                                  const PopupMenuItem(
+                                                    value: 'edit',
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(Icons.edit, color: Colors.blue),
+                                                        SizedBox(width: 8),
+                                                        Text("Edit"),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const PopupMenuItem(
+                                                    value: 'delete',
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(Icons.delete, color: Colors.red),
+                                                        SizedBox(width: 8),
+                                                        Text("Delete"),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            "Dept: ${card.dept}",
+                                            style: const TextStyle(fontSize: 17, color: Colors.black),
+                                          ),
+                                          const SizedBox(height: 8),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              ]
           ),
         ),
       ),
