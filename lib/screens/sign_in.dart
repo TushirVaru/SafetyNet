@@ -1,3 +1,4 @@
+import 'package:SafetyNet/screens/login.dart';
 import 'package:flutter/material.dart';
 import '../services/verhoeff.dart';
 
@@ -156,7 +157,10 @@ class _SignInState extends State<SignIn> {
                       const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const Login()),
+                          );
                         },
                         child: const Text("Go to Login Page"),
                       ),

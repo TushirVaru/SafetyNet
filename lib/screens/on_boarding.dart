@@ -26,30 +26,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(bottom: 80),
-        child: PageView(
-          controller: pageViewController,
-          onPageChanged: (index) {
-            setState(() {
-              isLastPage = index == 2;
-            });
-          },
-          children: [
-            _buildPage(
-              title: 'Welcome',
-              description: 'Discover awesome features of the app.',
-              imagePath: 'assets/Welcome.jpg',
-            ),
-            _buildPage(
-              title: 'Explore',
-              description: 'Explore various tools and functionalities.',
-              imagePath: 'assets/Explore.jpg',
-            ),
-            _buildPage(
-              title: 'Get Started',
-              description: 'Let\'s start using the app now.',
-              imagePath: 'assets/GetStarted.jpg',
-            ),
-          ],
+        child: Expanded(
+          child: PageView(
+            controller: pageViewController,
+            onPageChanged: (index) {
+              setState(() {
+                isLastPage = index == 2;
+              });
+            },
+            children: [
+              _buildPage(
+                title: 'Welcome',
+                description: 'Discover awesome features of the app.',
+                imagePath: 'assets/Welcome.jpg',
+              ),
+              _buildPage(
+                title: 'Explore',
+                description: 'Explore various tools and functionalities.',
+                imagePath: 'assets/Explore.jpg',
+              ),
+              _buildPage(
+                title: 'Get Started',
+                description: 'Let\'s start using the app now.',
+                imagePath: 'assets/GetStarted.jpg',
+              ),
+            ],
+          ),
         ),
       ),
       bottomSheet: isLastPage
