@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: isFirstTime ? const OnboardingScreen() : (isLoggedIn ? AccidentDetectionScreen() : const Login()),
+      home: isFirstTime ? const OnboardingScreen() : isLoggedIn ? AccidentDetectionScreen() : const Login(),
     );
   }
 }

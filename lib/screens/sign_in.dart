@@ -450,6 +450,7 @@ class _SignInState extends State<SignIn> {
               child: ElevatedButton(
                 onPressed: () {
                   signInController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+                  signInSub1Controller.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
                 },
                 child: const Text('Previous'),
               ),
