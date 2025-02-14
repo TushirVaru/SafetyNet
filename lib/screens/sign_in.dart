@@ -42,6 +42,7 @@ class _SignInState extends State<SignIn> {
   String? _confirmPasswordError;
 
 
+
   final List<Map<String, String>> contacts = [];
   final List<Map<String, String>> health = [];
   final List<String> bloodType = [
@@ -74,6 +75,49 @@ class _SignInState extends State<SignIn> {
     );
   }
 
+  bool _isValid() {
+    print("________________________________");
+    print("Current Page: ${currentPage}");
+    print("________________________________");
+    switch (currentPage) {
+      case 0: // Page 1: Personal Details
+        print("________________________________");
+        print("In case 0");
+        print("________________________________");
+        return firstNameController.text.isNotEmpty &&
+            lastNameController.text.isNotEmpty &&
+            dateController.text.isNotEmpty &&
+            selectedGender.isNotEmpty;
+
+      case 1: // Page 2: Contact Details
+        return emailController.text.isNotEmpty &&
+            contactController.text.isNotEmpty &&
+            addressController.text.isNotEmpty &&
+            countryController.text.isNotEmpty &&
+            pinCodeController.text.isNotEmpty &&
+            cityController.text.isNotEmpty &&
+            stateController.text.isNotEmpty;
+
+      case 2: // Page 3: Aadhaar & Emergency Contact
+        return aadhaarController.text.isNotEmpty &&
+            contacts.isNotEmpty &&
+            aadhaarError.isEmpty;
+
+      case 3: // Page 4: Blood Group
+        return selectedBloodType.isNotEmpty &&
+            selectedRHFactor.isNotEmpty;
+
+      case 4: // Page 5: Password
+        return passwordController.text.isNotEmpty &&
+            confirmPasswordController.text.isNotEmpty &&
+            passwordController.text == confirmPasswordController.text;
+
+      default:
+        return false;
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +135,6 @@ class _SignInState extends State<SignIn> {
                   currentPage = index;
                 });
               },
-              // physics: const NeverScrollableScrollPhysics(),
               children: [
                 _basicInfo(),
                 _contactDetails(),
@@ -124,79 +167,91 @@ class _SignInState extends State<SignIn> {
             ),
           ),
 
-
           // Navigation Buttons
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            child:
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-                //Previous Button
-                ElevatedButton(
-                  onPressed: () {
-                    signInController.previousPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeIn,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+          if (currentPage <= 4)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Previous Button
+                  ElevatedButton(
+                    onPressed: () {
+                      if (currentPage > 0) {
+                        signInController.previousPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeIn,
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.arrow_back, size: 18),
+                        SizedBox(width: 8),
+                        Text('Previous'),
+                      ],
                     ),
                   ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.arrow_back, size: 18),
-                      SizedBox(width: 8),
-                      Text('Previous'),
-                    ],
-                  ),
-                ),
 
-                //Indicator
-                Row(
-                  children: [
-                    ...List.generate(4, (index) => Padding(
+                  // Indicator
+                  Row(
+                    children: List.generate(
+                      5, // Updated from 4 → 5 because there are 5 pages before confirmation
+                          (index) => Padding(
                         padding: const EdgeInsets.only(right: 4),
-                        child: DotIndicator(index == currentPage)
-                    ))
-                  ],
-                ),
-
-                // Next button
-                ElevatedButton(
-                  onPressed: () {
-                    if(currentPage!=4) {
-                      signInController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeIn,
-                      );
-                    }else{
-                      _showConfirmation();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                        child: DotIndicator(index == currentPage),
+                      ),
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(currentPage == 4 ? 'Confirm' : 'Next'),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward, size: 18),
-                    ],
+
+                  // Next button
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_isValid()) {
+                        if (currentPage < 4) {
+                          signInController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeIn,
+                          );
+                        } else {
+                          _showConfirmation();
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text("Please fill all required fields correctly"),
+                            backgroundColor: Colors.red,
+                            duration: const Duration(milliseconds: 2500),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(currentPage == 4 ? 'Confirm' : 'Next'),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.arrow_forward, size: 18),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
