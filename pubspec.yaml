@@ -15,6 +15,12 @@ dependencies:
   sensors_plus: ^6.1.1
   geolocator: ^10.1.0
   flutter_compass: ^0.8.0
+  flutter_background_service: ^2.2.0
+  flutter_local_notifications: ^13.0.0
+  permission_handler: ^10.0.0
+  device_info_plus: ^9.0.0
+  rxdart: ^0.27.0
+  audioplayers: ^5.0.0
 
 
 dev_dependencies:
@@ -26,4 +32,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/
+    - assets/emergency_alert.wav
