@@ -28,21 +28,21 @@ class HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("HomePage"),
+        backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await prefs.setBool("isLoggedIn", false);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const Login()),(route) => false,
+              );
+            },
+          ),
+        ],
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: logOut,
-          child: const Text("LogOut"),
-        ),
-      ),
-    );
-  }
-
-  void logOut() async {
-    await prefs.setBool("isLoggedIn", false);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Login()),
+      body: Placeholder()
     );
   }
 }
