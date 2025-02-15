@@ -1,6 +1,8 @@
 import 'package:SafetyNet/screens/login.dart';
 import 'package:flutter/material.dart';
 import '../services/verhoeff.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -42,16 +44,14 @@ class _SignInState extends State<SignIn> {
   String? _passwordError;
   String? _confirmPasswordError;
 
-
-
   final List<Map<String, String>> contacts = [];
-  final List<Map<String, String>> health = [];
   final List<String> bloodType = [
     'A', 'B', 'O', 'AB'
   ];final List<String> bloodRHFactor = [
     '+', '-'
   ];
 
+  //confirm pop up
   void _showConfirmation(){
     showDialog(
       context: context,
@@ -64,10 +64,7 @@ class _SignInState extends State<SignIn> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              signInController.nextPage(duration: const Duration(microseconds: 300), curve: Curves.easeIn);
-              Navigator.pop(context);
-            },
+            onPressed: () => submitData(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xff1b1725),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -80,6 +77,60 @@ class _SignInState extends State<SignIn> {
     );
   }
 
+  void submitData(BuildContext context) async {
+    final url = Uri.parse('https://safetynet-phi.vercel.app/api/v1/users/signup');
+
+    final Map<String, dynamic> data = {
+      "fullName": "${firstNameController.text}  ${middleNameController.text}  ${lastNameController.text}",
+      "email": emailController.text,
+      "dateOfBirth": "1967-12-11T00:00:00Z",
+      "password": passwordController.text,
+      "passwordConfirm": confirmPasswordController.text,
+      "address": "${addressController.text}, ${cityController.text}, ${stateController.text}, ${countryController.text} ",
+      "mobile": int.tryParse(contactController.text),
+      "gender": selectedGender.toLowerCase(),
+      "aadhaar": aadhaarController.text,
+      "emergencyContacts": contacts,
+      "bloodType": "$selectedBloodType$selectedRHFactor",
+      "healthCondition": "Condition: ${healthCondition.text}\nAllergy: ${healthAllergy.text}\nSurgeries: ${healthSurgeries.text}\nMedication: ${healthMedications.text}",
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json",},
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 201) {
+        // Success
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Signup successful!")),
+        );
+      } else {
+        // Failure
+        final responseData = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(responseData["message"] ?? "Signup failed!")),
+        );
+        print("_---------------------------------------");
+        print(responseData["message"] ?? "Signup failed!");
+        print("_---------------------------------------");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+      print("_---------------------------------------");
+      print("Error: $e");
+      print("_---------------------------------------");
+    }
+
+    signInController.nextPage(duration: const Duration(microseconds: 300), curve: Curves.easeIn);
+    Navigator.pop(context);
+  }
+
+  //validator
   bool _isValid() {
     switch (currentPage) {
       case 0: // Page 1: Personal Details
@@ -115,7 +166,6 @@ class _SignInState extends State<SignIn> {
         return false;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -186,21 +236,18 @@ class _SignInState extends State<SignIn> {
           ),
 
           // Navigation Buttons
-          if (currentPage <= 4)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Previous Button
-                  ElevatedButton(
-                    onPressed: () {
-                      if (currentPage > 0) {
-                        signInController.previousPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeIn,
-                        );
-                      }
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Previous Button
+                ElevatedButton(
+                  onPressed: () {
+                    signInController.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeIn,
+                    );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xff1b1725),
@@ -385,7 +432,7 @@ class _SignInState extends State<SignIn> {
                           Row(
                             children: [
                               Radio<String>(
-                                value: "Male",
+                                value: "male",
                                 groupValue: selectedGender,
                                 onChanged: (value) {
                                   setState(() {
@@ -400,7 +447,7 @@ class _SignInState extends State<SignIn> {
                           Row(
                             children: [
                               Radio<String>(
-                                value: "Female",
+                                value: "female",
                                 groupValue: selectedGender,
                                 onChanged: (value) {
                                   setState(() {

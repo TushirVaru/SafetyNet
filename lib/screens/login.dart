@@ -2,6 +2,8 @@ import 'package:SafetyNet/screens/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -29,7 +31,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xff1b1725)
+        backgroundColor: const Color(0xff1b1725)
       ),
 
       body: Container(
@@ -131,16 +133,62 @@ class _LoginState extends State<Login> {
   }
 
   // Handle Login Logic
-  void onPressed() {
+  void onPressed() async{
     if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
       // Save user login state in SharedPreferences
       prefs.setBool("isLoggedIn", true);
 
-      // Navigate to HomePage after successful login
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
+      final url = Uri.parse('https://safetynet-phi.vercel.app/api/v1/users/login');
+
+      final Map<String, dynamic> data = {
+        "email": _emailController.text,
+        "password": _passwordController.text,
+      };
+
+      try {
+        final response = await http.post(
+          url,
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(data),
+        );
+
+        print("_---------------------------------------");
+        print("Responce ${jsonDecode(response.body)["status"]}");
+        print("_---------------------------------------");
+
+        if (jsonDecode(response.body)["status"] == "success") {
+          // Success
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Login successful!")),
+          );
+          prefs.setString("jwt", jsonDecode(response.body)["token"]);
+
+          // Navigate to HomePage after successful login
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        } else {
+          // Failure
+          final responseData = jsonDecode(response.body);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData["message"] ?? "Signup failed!")),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
+        print("_---------------------------------------");
+        print("Error: $e");
+        print("_---------------------------------------");
+      }
+
+      // // Navigate to HomePage after successful login
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const HomePage()),
+      // );
     } else {
       // Show error if fields are empty
       ScaffoldMessenger.of(context).showSnackBar(

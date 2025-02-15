@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:sensors_plus/sensors_plus.dart';
-import 'dart:async';
-import 'package:rxdart/rxdart.dart';
+// import 'package:flutter_background_service/flutter_background_service.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'package:sensors_plus/sensors_plus.dart';
+// import 'dart:async';
+// import 'package:rxdart/rxdart.dart';
 import 'package:SafetyNet/screens/home_page.dart';
 import 'package:SafetyNet/screens/login.dart';
 import 'package:SafetyNet/screens/on_boarding.dart';
