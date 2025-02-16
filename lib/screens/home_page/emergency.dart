@@ -1,147 +1,174 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Emergency extends StatefulWidget {
-  const Emergency({super.key});
+void main() => runApp(EmergencyApp());
 
+class EmergencyApp extends StatelessWidget {
   @override
-  State<Emergency> createState() => EmergencyState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Emergency(),
+    );
+  }
 }
 
-class EmergencyState extends State<Emergency> {
+class CardModel {
+  String id;
+  String name;
+  String desc;
+  String dept;
+  String uid;
+
+  CardModel({required this.id, required this.name, required this.desc, required this.dept, required this.uid});
+
+  factory CardModel.fromJson(Map<String, dynamic> json) {
+    return CardModel(
+      id: json["_id"] ?? '',
+      name: json["name"],
+      desc: json["description"],
+      dept: json["department"].isNotEmpty ? json["department"][0] : '',
+      uid: json["user"],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "description": desc,
+      "department": [dept],
+      "user": uid,
+    };
+  }
+}
+
+class Emergency extends StatefulWidget {
+  @override
+  _EmergencyState createState() => _EmergencyState();
+}
+
+class _EmergencyState extends State<Emergency> {
   late SharedPreferences prefs;
   List<CardModel> forUsCards = [];
-  List<CardModel> forOthersCards = [];
+  String authToken = "";
+  String userId = "";
+  final String apiUrl = "https://safetynet-phi.vercel.app/api/v1/users/cards";
 
   @override
   void initState() {
     super.initState();
-    initializeSharedPreference();
+    initializePreference();
+    fetchAndSetCards();
   }
 
-  Future<void> initializeSharedPreference() async {
+  void initializePreference() async{
     prefs = await SharedPreferences.getInstance();
-    loadforUsCards();
-    loadforOthersCards();
+    authToken = prefs.getString("jwt")!;
+    userId = prefs.getString("uid")!;
+
   }
 
-  void loadforUsCards() {
-    final storedforUsCards = prefs.getStringList("forUsCards");
-    if (storedforUsCards != null) {
-      setState(() {
-        forUsCards = storedforUsCards.map((e) => CardModel.fromJson(jsonDecode(e))).toList();
-      });
+  Future<void> fetchAndSetCards() async {
+    try {
+      print("------------------------------------------In Try");
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json", 'Authorization': 'Bearer $authToken'},
+      );
+
+      final paresedResponce = jsonDecode(response.body);
+      print("------------------------------------------parsedResponce: ${paresedResponce}");
+      if (paresedResponce["status"]=="success") {
+        print("------------------------------------------In success");
+        List<dynamic> jsonData = jsonDecode(response.body);
+        setState(() {
+          forUsCards = jsonData.map((item) => CardModel.fromJson(item)).toList();
+        });
+      } else {
+        throw Exception("Failed to load cards");
+      }
+    } catch (error) {
+      print("Error fetching cards: $error");
     }
   }
 
-  void loadforOthersCards() {
-    final storedforUsCards = prefs.getStringList("forUsCards");
-    if (storedforUsCards != null) {
-      setState(() {
-        forOthersCards = storedforUsCards.map((e) => CardModel.fromJson(jsonDecode(e))).toList();
-      });
+  Future<void> addCard(CardModel card) async {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $authToken',
+      },
+      body: jsonEncode(card.toJson()),
+    );
+
+    if (response.statusCode == 201) {
+      fetchAndSetCards();
+    } else {
+      throw Exception("Failed to add card");
     }
   }
 
-  void saveforUsCards() {
-    prefs.setStringList("forUsCards", forUsCards.map((e) => jsonEncode(e.toJson())).toList());
-  }
+  Future<void> deleteCard(String cardId) async {
+    final response = await http.delete(
+      Uri.parse("$apiUrl/$cardId"),
+      headers: {'Authorization': 'Bearer $authToken'},
+    );
 
-  void saveforOthersCards() {
-    prefs.setStringList("forUsCards", forOthersCards.map((e) => jsonEncode(e.toJson())).toList());
+    if (response.statusCode == 200) {
+      fetchAndSetCards();
+    } else {
+      throw Exception("Failed to delete card");
+    }
   }
 
   void _addOrEditCard({int? index}) {
-    TextEditingController nameController = TextEditingController(
-        text: index != null ? forUsCards[index].name : '');
-    TextEditingController descController = TextEditingController(
-        text: index != null ? forUsCards[index].desc : '');
-    TextEditingController deptController = TextEditingController(
-        text: index != null ? forUsCards[index].dept : '');
-    bool isForUs = index != null ? forUsCards[index].isForUs : true;
+    TextEditingController nameController = TextEditingController(text: index != null ? forUsCards[index].name : '');
+    TextEditingController descController = TextEditingController(text: index != null ? forUsCards[index].desc : '');
+    TextEditingController deptController = TextEditingController(text: index != null ? forUsCards[index].dept : '');
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Center(
-            child: Text(
-              index == null ? "Add Card" : "Edit Card",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildTextField(nameController, "Name", Icons.person),
-                _buildTextField(descController, "Description", Icons.description),
-                _buildTextField(deptController, "Department", Icons.business),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<bool>(
-                  value: isForUs,
-                  onChanged: (value) {
-                    if (value != null) {
-                      isForUs = value;
-                    }
-                  },
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: true, child: Text("For You")),
-                    DropdownMenuItem(value: false, child: Text("For Others")),
-                  ],
-                ),
-              ],
-            ),
+          title: Text(index == null ? "Add Card" : "Edit Card"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildTextField(nameController, "Name", Icons.person),
+              _buildTextField(descController, "Description", Icons.description),
+              _buildTextField(deptController, "Department", Icons.business),
+            ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel", style: TextStyle(color: Colors.red)),
-            ),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff1b1725),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              onPressed: () {
+              onPressed: () async {
                 if (nameController.text.isNotEmpty && deptController.text.isNotEmpty) {
-                  setState(() {
-                    CardModel card = CardModel(
-                        nameController.text, descController.text, deptController.text, isForUs);
+                  CardModel newCard = CardModel(
+                    id: index != null ? forUsCards[index].id : '',
+                    name: nameController.text,
+                    desc: descController.text,
+                    dept: deptController.text,
+                    uid: userId,
+                  );
+
+                  try {
                     if (index == null) {
-                      if (isForUs) {
-                        forUsCards.add(card);
-                      } else {
-                        forOthersCards.add(card);
-                      }
+                      await addCard(newCard);
                     } else {
-                      if (isForUs) {
-                        forUsCards[index] = card;
-                      } else {
-                        forOthersCards[index] = card;
-                      }
+                      await deleteCard(forUsCards[index].id);
+                      await addCard(newCard);
                     }
-                    saveforUsCards();
-                    saveforOthersCards();
-                  });
-                  Navigator.pop(context);
+                    Navigator.pop(context);
+                  } catch (e) {
+                    print("Error adding/updating card: $e");
+                  }
                 }
               },
-              child: Text(index == null ? "Add" : "Update", style: const TextStyle(color: Colors.white),),
+              child: Text(index == null ? "Add" : "Update"),
             ),
           ],
         );
@@ -156,309 +183,44 @@ class EmergencyState extends State<Emergency> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: Icon(icon, color: Colors.blueAccent),
-          filled: true,
-          fillColor: Colors.grey[200],
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          prefixIcon: Icon(icon),
+          border: OutlineInputBorder(),
         ),
       ),
     );
   }
 
-  void _deleteCard(int index) {
-    setState(() {
-      forUsCards.removeAt(index);
-      saveforUsCards();
-    });
+  void _deleteCard(int index) async {
+    try {
+      await deleteCard(forUsCards[index].id);
+    } catch (e) {
+      print("Error deleting card: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: const Color(0xffF0F0F0),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: PageView(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("For You", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
-                    const Divider(height: 10, thickness: 2, color: Colors.black,),
-                    Expanded(
-                      child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 3 / 2,
-                        ),
-                        itemCount: forUsCards.length,
-                        itemBuilder: (context, index) {
-
-                          final card = forUsCards[index];
-
-                          return SizedBox(
-                            child: GestureDetector(
-                              onTap: () {
-                                showConfirmDialog(context);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 5.0),
-                                child: SizedBox(
-                                  child: Card(
-                                    // elevation: 6,
-                                    color: const Color(0xFFFFFFFF),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                        side: const BorderSide(color: Colors.black, width: 1.5)
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  card.name,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: const TextStyle(fontSize: 29, color: Colors.black, fontWeight: FontWeight.bold),
-                                                ),
-                                              ),
-
-                                              //PopUp for edit and delete options of card
-                                              PopupMenuButton<String>(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                elevation: 8,
-                                                color: Colors.white,
-                                                onSelected: (value) {
-                                                  if (value == 'edit') {
-                                                    _addOrEditCard(index: index);
-                                                  } else if (value == 'delete') {
-                                                    _deleteCard(index);
-                                                  }
-                                                },
-                                                itemBuilder: (context) => [
-                                                  //Edit Option
-                                                  const PopupMenuItem(
-                                                    value: 'edit',
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(Icons.edit, color: Colors.blue),
-                                                        SizedBox(width: 10),
-                                                        Text(
-                                                          "Edit",
-                                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                                        ),
-                                                      ],
-                                                    )
-                                                  ),
-                                                  //Delete Option
-                                                  const PopupMenuItem(
-                                                    value: 'delete',
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(Icons.delete, color: Colors.red),
-                                                        SizedBox(width: 10),
-                                                        Text(
-                                                          "Delete",
-                                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                                        ),
-                                                      ],
-                                                    )
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          Text(
-                                            "Dept: ${card.dept}",
-                                            style: const TextStyle(fontSize: 17, color: Colors.black),
-                                          ),
-                                          const SizedBox(height: 8),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("For Others", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
-                    const Divider(height: 10, thickness: 2, color: Colors.black,),
-                    Expanded(
-                      child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 3 / 2,
-                        ),
-                        itemCount: forOthersCards.length,
-                        itemBuilder: (context, index) {
-
-                          final card = forOthersCards[index];
-
-                          return SizedBox(
-                            child: GestureDetector(
-                              onTap: () {
-                                showConfirmDialog(context);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 5.0),
-                                child: SizedBox(
-                                  child: Card(
-                                    // elevation: 6,
-                                    color: const Color(0xFFFFFFFF),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                        side: const BorderSide(color: Colors.black, width: 1.5)
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(15.0),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  card.name,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: const TextStyle(fontSize: 29, color: Colors.black, fontWeight: FontWeight.bold),
-                                                ),
-                                              ),
-                                              PopupMenuButton<String>(
-                                                onSelected: (value) {
-                                                  if (value == 'edit') {
-                                                    _addOrEditCard(index: index);
-                                                  } else if (value == 'delete') {
-                                                    _deleteCard(index);
-                                                  }
-                                                },
-                                                itemBuilder: (context) => [
-                                                  const PopupMenuItem(
-                                                    value: 'edit',
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(Icons.edit, color: Colors.blue),
-                                                        SizedBox(width: 8),
-                                                        Text("Edit"),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  const PopupMenuItem(
-                                                    value: 'delete',
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(Icons.delete, color: Colors.red),
-                                                        SizedBox(width: 8),
-                                                        Text("Delete"),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          Text(
-                                            "Dept: ${card.dept}",
-                                            style: const TextStyle(fontSize: 17, color: Colors.black),
-                                          ),
-                                          const SizedBox(height: 8),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              ]
-          ),
-        ),
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-        child: SizedBox(
-          height: 80,
-          width: 80,
-          child: FloatingActionButton(
-            onPressed: () => _addOrEditCard(),
-            backgroundColor: const Color(0xff1b1725),
-            shape: const CircleBorder(),
-            child: const Icon(Icons.add, color: Colors.white, size: 50,),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void showConfirmDialog(BuildContext context) async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xfff0f0f0),
-        title: const Text("Confirmation", style: TextStyle(fontSize: 25)),
-        content: const Text("Are you sure you want to proceed?", style: TextStyle(fontSize: 18)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false), // Close dialog
-            child: const Text("Cancel", style: TextStyle(fontSize: 19, color: Color(0xcf534b62))),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xff1b1725),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      appBar: AppBar(title: Text("Emergency Contacts")),
+      body: ListView.builder(
+        itemCount: forUsCards.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(forUsCards[index].name),
+            subtitle: Text(forUsCards[index].desc),
+            trailing: IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _deleteCard(index),
             ),
-            onPressed: () => Navigator.pop(context, true), // Confirm action
-            child: const Text("Confirm", style: TextStyle(fontSize: 19, color: Colors.white)),
-          ),
-        ],
+            onTap: () => _addOrEditCard(index: index),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => _addOrEditCard(),
       ),
     );
   }
-}
 
-// Model class for Card
-class CardModel {
-  String name;
-  String desc;
-  String dept;
-  bool isForUs;
-
-  CardModel(this.name, this.desc, this.dept, this.isForUs);
-
-  Map<String, dynamic> toJson() => {"name": name, "desc": desc, "dept": dept, "isForUs" : isForUs};
-
-  factory CardModel.fromJson(Map<String, dynamic> json) {
-    return CardModel(json["name"], json["desc"], json["dept"], json["isForUs"]);
-  }
 }

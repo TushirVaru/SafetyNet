@@ -162,6 +162,10 @@ class _LoginState extends State<Login> {
             const SnackBar(content: Text("Login successful!")),
           );
           prefs.setString("jwt", jsonDecode(response.body)["token"]);
+          prefs.setString("uid", jsonDecode(response.body)["data"]["user"]["_id"]);
+          print("_---------------------------------------");
+          print("Token from responce: ${jsonDecode(response.body)["token"]}, Token from preference: ${prefs.getString("jwt")}, and UID: ${prefs.get("uid")}");
+          print("_---------------------------------------");
 
           // Navigate to HomePage after successful login
           Navigator.pushReplacement(

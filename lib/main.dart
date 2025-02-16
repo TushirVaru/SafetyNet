@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:rxdart/rxdart.dart';
 import 'package:SafetyNet/screens/home_page.dart';
 import 'package:SafetyNet/screens/login.dart';
-import 'package:SafetyNet/screens/on_boarding.dart';
 
 // final FlutterLocalNotificationsPlugin notificationsPlugin = FlutterLocalNotificationsPlugin();
 // final BehaviorSubject<String?> selectNotificationSubject = BehaviorSubject<String?>();
@@ -36,9 +35,9 @@ class MyApp extends StatelessWidget {
       title: 'SafetyNet',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true),
-      home: isFirstTime ? const OnboardingScreen() : (isLoggedIn
+      home: isLoggedIn
           ? const HomePage()
-          : const Login()),
+          : const Login(),
     );
   }
 }

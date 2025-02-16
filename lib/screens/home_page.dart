@@ -16,8 +16,8 @@ class HomePageState extends State<HomePage> {
   late SharedPreferences prefs;
   int _selectedIndex = 0;
   final List<Widget> _pages = [
-    const Emergency(),
-    const Profile(),
+    Emergency(),
+    Profile(),
   ];
 
   @override
