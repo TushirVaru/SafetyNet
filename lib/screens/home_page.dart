@@ -86,42 +86,42 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  void showConfirmDialog(BuildContext context) async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xfff0f0f0),
-        title: const Text("Confirmation", style: TextStyle(fontSize: 25)),
-        content: const Text("Are you sure you want to proceed?", style: TextStyle(fontSize: 18)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false), // Close dialog
-            child: const Text("Cancel", style: TextStyle(fontSize: 19, color: Color(0xcf534b62))),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true), // Confirm action
-            child: const Text("Confirm", style: TextStyle(fontSize: 19, color: Color(0xff226ce0))),
-          ),
-        ],
-      ),
-    );
-  }
+  // void showConfirmDialog(BuildContext context) async {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       backgroundColor: const Color(0xfff0f0f0),
+  //       title: const Text("Confirmation", style: TextStyle(fontSize: 25)),
+  //       content: const Text("Are you sure you want to proceed?", style: TextStyle(fontSize: 18)),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context, false), // Close dialog
+  //           child: const Text("Cancel", style: TextStyle(fontSize: 19, color: Color(0xcf534b62))),
+  //         ),
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context, true), // Confirm action
+  //           child: const Text("Confirm", style: TextStyle(fontSize: 19, color: Color(0xff226ce0))),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
 
 // Model class for Card
-class CardModel {
-  String name;
-  String desc;
-  String dept;
-
-  CardModel(this.name, this.desc, this.dept);
-
-  Map<String, dynamic> toJson() => {"name": name, "desc": desc, "dept": dept};
-
-  factory CardModel.fromJson(Map<String, dynamic> json) {
-    return CardModel(json["name"], json["desc"], json["dept"]);
-  }
-}
+// class CardModel {
+//   String name;
+//   String desc;
+//   String dept;
+//
+//   CardModel(this.name, this.desc, this.dept);
+//
+//   Map<String, dynamic> toJson() => {"name": name, "desc": desc, "dept": dept};
+//
+//   factory CardModel.fromJson(Map<String, dynamic> json) {
+//     return CardModel(json["name"], json["desc"], json["dept"]);
+//   }
+// }
 
 
 

@@ -10,9 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^2.3.3
-  smooth_page_indicator: ^1.2.0+3
   cupertino_icons: ^1.0.6
   http: ^0.13.6
+  flutter_dotenv: ^5.1.0
 #  sensors_plus: ^3.0.4
 #  geolocator: ^10.1.0
 #  flutter_compass: ^0.8.0
@@ -34,3 +34,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/emergency_alert.wav
+    - config.env

@@ -1,5 +1,6 @@
 import 'package:SafetyNet/screens/login.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../services/verhoeff.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -78,7 +79,7 @@ class _SignInState extends State<SignIn> {
   }
 
   void submitData(BuildContext context) async {
-    final url = Uri.parse('https://safetynet-phi.vercel.app/api/v1/users/signup');
+    final apiUrl = Uri.parse('${dotenv.env['API_URL']}/users/signup');
 
     final Map<String, dynamic> data = {
       "fullName": "${firstNameController.text}  ${middleNameController.text}  ${lastNameController.text}",
@@ -97,7 +98,7 @@ class _SignInState extends State<SignIn> {
 
     try {
       final response = await http.post(
-        url,
+        apiUrl,
         headers: {"Content-Type": "application/json",},
         body: jsonEncode(data),
       );
@@ -105,7 +106,7 @@ class _SignInState extends State<SignIn> {
       if (response.statusCode == 201) {
         // Success
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Signup successful!")),
+          const SnackBar(content: Text("Signup successful!")),
         );
       } else {
         // Failure
@@ -171,7 +172,7 @@ class _SignInState extends State<SignIn> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xff1b1725),
+        backgroundColor: const Color(0xff1b1725),
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text("SignUp", style: TextStyle(color: Colors.white)),
         actions: [
@@ -306,7 +307,7 @@ class _SignInState extends State<SignIn> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(currentPage == 4 ? 'Confirm' : 'Next', style: TextStyle(color: Colors.white),),
+                        Text(currentPage == 4 ? 'Confirm' : 'Next', style: const TextStyle(color: Colors.white),),
                         const SizedBox(width: 8),
                         const Icon(Icons.arrow_forward, size: 18),
                       ],
