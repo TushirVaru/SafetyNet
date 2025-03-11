@@ -33,101 +33,62 @@ class EmergencyState extends State<Emergency> {
   }
 
   Future<void> fetchAndSetCards() async {
-    int? length;
     setState(() => isLoading = true);
+    cards = [];
 
     try {
-      //67b01cb1ae66263db4629acf
-      final apiUrl = Uri.parse('${dotenv.env['API_URL']}/cards/67b01cb1ae66263db4629acf');
+      final apiUrl = Uri.parse('${dotenv.env['API_URL']}/cards?user=$uidId');
       final response = await http.get(
         apiUrl,
         headers: {
-          "Content-Type": "application/json",
+            "Content-Type": "application/json",
           "Authorization": "Bearer $authToken",
         },
       );
 
+      print("AuthToken: ${authToken}");
+      print("UID: ${uidId}");
+
       if (response.statusCode == 200) {
         Map<String, dynamic> parsedResponse = jsonDecode(response.body);
 
-        if (parsedResponse["data"] != null && parsedResponse["data"]["doc"] != null) {
-          print(""
-              "---------------------------\n"
-              "Id: ${parsedResponse["data"]["doc"]["_id"]},\n"
-              "Name: ${parsedResponse["data"]["doc"]["name"]},\n"
-              "Description: ${parsedResponse["data"]["doc"]["description"]},\n"
-              "dept: ${parsedResponse["data"]["doc"]["department"]},\n"
-              "uid: ${parsedResponse["data"]["doc"]["user"]}\n"
-              "---------------------------"
-          );
-          length = parsedResponse["length"];
-          if(length==null){
+        if (parsedResponse["data"] != null && parsedResponse["data"]["docs"] != null) {
+          // Process the array of cards in data.docs
+          List<dynamic> cardsList = parsedResponse["data"]["docs"];
+
+          for (var cardData in cardsList) {
+            String cardId = cardData["_id"];
+
             setState(() {
-              String newCardId = parsedResponse["data"]["doc"]["_id"];
-
-              // Check if card already exists
-              bool cardExists = cards.any((card) => card.cid == newCardId);
-
-              if (!cardExists) {
-                cards.add(
-                  CardModel(
-                    cid: newCardId,
-                    name: parsedResponse["data"]["doc"]["name"],
-                    desc: parsedResponse["data"]["doc"]["description"],
-                    dept: parsedResponse["data"]["doc"]["department"],
-                    uid: parsedResponse["data"]["doc"]["user"],
-                  ),
-                );
-              }
+              cards.add(
+                CardModel(
+                  cid: cardId,
+                  name: cardData["name"],
+                  desc: cardData["description"],
+                  dept: List<dynamic>.from(cardData["department"]), // Convert to List<dynamic>
+                  uid: cardData["user"],
+                ),
+              );
             });
-            isLoading = false;
-          }
-          else{
-            while(length!<0){
-              setState(() {
-                String newCardId = parsedResponse["data"]["doc"]["_id"];
-
-                // Check if card already exists
-                bool cardExists = cards.any((card) => card.cid == newCardId);
-
-                if (!cardExists) {
-                  cards.add(
-                    CardModel(
-                      cid: newCardId,
-                      name: parsedResponse["data"]["doc"]["name"],
-                      desc: parsedResponse["data"]["doc"]["description"],
-                      dept: parsedResponse["data"]["doc"]["department"],
-                      uid: parsedResponse["data"]["doc"]["user"],
-                    ),
-                  );
-                }
-              });
-              length--;
-              isLoading = false;
-            }
           }
 
-          print("Card is: ${cards.isNotEmpty}");
+          print("Cards loaded: ${cards.length}");
           if (cards.isNotEmpty) {
-            _showUserMessage("Cards successfully loaded");
+            _showUserMessage("${cards.length} cards successfully loaded");
           } else {
             _showUserMessage("No cards available");
           }
         } else {
-          setState(() {
-            cards = [];
-            isLoading = false;
-          });
           _showUserMessage("No cards created yet");
         }
       } else {
-        setState(() => isLoading = false);
         _showUserMessage("Server Error: ${response.statusCode}");
       }
     } catch (error) {
-      setState(() => isLoading = false);
       _showUserMessage("Failed to load cards");
       print("Error fetching cards: $error");
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -140,6 +101,8 @@ class EmergencyState extends State<Emergency> {
   }
 
   Future<void> addCard(CardModel card) async {
+
+    print("--------------In Add Card");
     try {
       final apiUrl = Uri.parse('${dotenv.env['API_URL']}/cards');
       final response = await http.post(
@@ -150,6 +113,8 @@ class EmergencyState extends State<Emergency> {
         },
         body: jsonEncode(card.toJson()),
       );
+
+      print("--------------Request sent. Status code: ${response.statusCode}");
 
       if (response.statusCode == 201) {
         _showUserMessage("Card added successfully!");
@@ -246,14 +211,17 @@ class EmergencyState extends State<Emergency> {
             ),
             ElevatedButton(
               onPressed: () async {
+                print("-----------------------In onPressed of Add button");
                 if (nameController.text.isEmpty || deptController.text.isEmpty) {
                   _showUserMessage("Name and Department are required");
                   return;
                 }
 
-                List<dynamic> departments =
-                deptController.text.split(',').map((e) => e.trim()).toList();
+                List<dynamic> departments = ["police"];
+                // deptController.text.split(',').map((e) => e.trim()).toList();
 
+
+                print("-----------------------Filing card details in card object");
                 CardModel card = CardModel(
                   cid: isEditing ? cards[index].cid : '',
                   name: nameController.text,
@@ -262,16 +230,17 @@ class EmergencyState extends State<Emergency> {
                   uid: uidId,
                 );
 
+                print("-----------------------Try bock of onPressed");
                 try {
                   if (isEditing) {
+                    print("--------------Name: ${card.name}, ID: ${card.uid}");
                     await updateCard(card);
                   } else {
+                    print("--------------Name: ${card.name}, ID: ${card.uid}");
                     await addCard(card);
                   }
 
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                  }
+                  Navigator.pop(context);
                 } catch (e) {
                   print("Error adding/updating card: $e");
                 }
@@ -281,12 +250,7 @@ class EmergencyState extends State<Emergency> {
           ],
         );
       },
-    ).then((_) {
-      // Dispose controllers when dialog is closed
-      nameController.dispose();
-      descController.dispose();
-      deptController.dispose();
-    });
+    );
   }
 
   Widget _buildTextField(
