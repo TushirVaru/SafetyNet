@@ -3,14 +3,14 @@ class CardModel {
   String name;
   String desc;
   List<dynamic> dept; // Changed from String to List<String>
-  String uid;
+  String user;
 
   CardModel({
     required this.cid,
     required this.name,
     required this.desc,
     required this.dept,
-    required this.uid,
+    required this.user,
   });
 
   factory CardModel.fromJson(Map<String, dynamic> json) {
@@ -19,7 +19,7 @@ class CardModel {
       name: json["name"],
       desc: json["description"],
       dept: List<dynamic>.from(json["department"] ?? []),
-      uid: json["uid"],
+      user: json["user"],
     );
   }
 
@@ -28,7 +28,7 @@ class CardModel {
       "name": name,
       "description": desc,
       "department": dept,
-      "uid": uid,
+      "user": user,
     };
   }
 }

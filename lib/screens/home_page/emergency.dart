@@ -16,7 +16,7 @@ class EmergencyState extends State<Emergency> {
   late SharedPreferences prefs;
   List<CardModel> cards = [];
   String authToken = "";
-  String uidId = "";
+  String userId = "";
   bool isLoading = true;
 
   @override
@@ -28,7 +28,7 @@ class EmergencyState extends State<Emergency> {
   Future<void> initializePreference() async {
     prefs = await SharedPreferences.getInstance();
     authToken = prefs.getString("jwt") ?? "";
-    uidId = prefs.getString("uid") ?? "";
+    userId = prefs.getString("uid") ?? "";
     await fetchAndSetCards();
   }
 
@@ -37,23 +37,22 @@ class EmergencyState extends State<Emergency> {
     cards = [];
 
     try {
-      final apiUrl = Uri.parse('${dotenv.env['API_URL']}/cards?user=$uidId');
+      final apiUrl = Uri.parse('${dotenv.env['API_URL']}/cards?user=$userId');
       final response = await http.get(
         apiUrl,
         headers: {
-            "Content-Type": "application/json",
+          "Content-Type": "application/json",
           "Authorization": "Bearer $authToken",
         },
       );
 
-      print("AuthToken: ${authToken}");
-      print("UID: ${uidId}");
+      print("AuthToken: $authToken");
+      print("user: $userId");
 
       if (response.statusCode == 200) {
         Map<String, dynamic> parsedResponse = jsonDecode(response.body);
 
         if (parsedResponse["data"] != null && parsedResponse["data"]["docs"] != null) {
-          // Process the array of cards in data.docs
           List<dynamic> cardsList = parsedResponse["data"]["docs"];
 
           for (var cardData in cardsList) {
@@ -65,14 +64,13 @@ class EmergencyState extends State<Emergency> {
                   cid: cardId,
                   name: cardData["name"],
                   desc: cardData["description"],
-                  dept: List<dynamic>.from(cardData["department"]), // Convert to List<dynamic>
-                  uid: cardData["user"],
+                  dept: List<dynamic>.from(cardData["department"]),
+                  user: cardData["user"],
                 ),
               );
             });
           }
 
-          print("Cards loaded: ${cards.length}");
           if (cards.isNotEmpty) {
             _showUserMessage("${cards.length} cards successfully loaded");
           } else {
@@ -86,7 +84,6 @@ class EmergencyState extends State<Emergency> {
       }
     } catch (error) {
       _showUserMessage("Failed to load cards");
-      print("Error fetching cards: $error");
     } finally {
       setState(() => isLoading = false);
     }
@@ -101,8 +98,6 @@ class EmergencyState extends State<Emergency> {
   }
 
   Future<void> addCard(CardModel card) async {
-
-    print("--------------In Add Card");
     try {
       final apiUrl = Uri.parse('${dotenv.env['API_URL']}/cards');
       final response = await http.post(
@@ -114,8 +109,6 @@ class EmergencyState extends State<Emergency> {
         body: jsonEncode(card.toJson()),
       );
 
-      print("--------------Request sent. Status code: ${response.statusCode}");
-
       if (response.statusCode == 201) {
         _showUserMessage("Card added successfully!");
         await fetchAndSetCards();
@@ -124,10 +117,10 @@ class EmergencyState extends State<Emergency> {
       }
     } catch (e) {
       _showUserMessage("Failed to add card! Try again.");
-      print("Error adding card: $e");
     }
   }
 
+  //Function To Update Card
   Future<void> updateCard(CardModel card) async {
     try {
       final apiUrl = Uri.parse("${dotenv.env['API_URL']}/cards/${card.cid}");
@@ -148,10 +141,10 @@ class EmergencyState extends State<Emergency> {
       }
     } catch (e) {
       _showUserMessage("Failed to update card. Try again.");
-      print("Error updating card: $e");
     }
   }
 
+  //To Delete Card
   Future<void> deleteCard(String cardId) async {
     try {
       final apiUrl = Uri.parse('${dotenv.env['API_URL']}/cards/$cardId');
@@ -160,7 +153,7 @@ class EmergencyState extends State<Emergency> {
         headers: {'Authorization': 'Bearer $authToken'},
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 204) {
         _showUserMessage("Card deleted successfully!");
         await fetchAndSetCards();
       } else {
@@ -168,11 +161,11 @@ class EmergencyState extends State<Emergency> {
       }
     } catch (e) {
       _showUserMessage("Failed to delete card. Try again.");
-      print("Error deleting card: $e");
     }
   }
 
-  void _addOrEditCard({int? index}) {
+  //To Add Or Edit Card
+  void addOrEditCard({int? index}) {
     final isEditing = index != null && index >= 0 && index < cards.length;
 
     final TextEditingController nameController = TextEditingController(
@@ -194,12 +187,43 @@ class EmergencyState extends State<Emergency> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildTextField(nameController, "Name", Icons.person),
-                _buildTextField(descController, "Description", Icons.description),
-                _buildTextField(
-                    deptController,
-                    "Departments (comma-separated)",
-                    Icons.business
+                //Name
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: "Name",
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+
+                //Description
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: TextField(
+                    controller: descController,
+                    decoration: const InputDecoration(
+                      labelText: "Description",
+                      prefixIcon: Icon(Icons.description),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+
+                //Departments
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: TextField(
+                    controller: deptController,
+                    decoration: const InputDecoration(
+                      labelText: "Departments",
+                      prefixIcon: Icon(Icons.business),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -211,7 +235,6 @@ class EmergencyState extends State<Emergency> {
             ),
             ElevatedButton(
               onPressed: () async {
-                print("-----------------------In onPressed of Add button");
                 if (nameController.text.isEmpty || deptController.text.isEmpty) {
                   _showUserMessage("Name and Department are required");
                   return;
@@ -221,28 +244,22 @@ class EmergencyState extends State<Emergency> {
                 // deptController.text.split(',').map((e) => e.trim()).toList();
 
 
-                print("-----------------------Filing card details in card object");
                 CardModel card = CardModel(
                   cid: isEditing ? cards[index].cid : '',
                   name: nameController.text,
                   desc: descController.text,
                   dept: departments,
-                  uid: uidId,
+                  user: userId,
                 );
-
-                print("-----------------------Try bock of onPressed");
                 try {
                   if (isEditing) {
-                    print("--------------Name: ${card.name}, ID: ${card.uid}");
                     await updateCard(card);
                   } else {
-                    print("--------------Name: ${card.name}, ID: ${card.uid}");
                     await addCard(card);
                   }
 
                   Navigator.pop(context);
                 } catch (e) {
-                  print("Error adding/updating card: $e");
                 }
               },
               child: Text(isEditing ? "Update" : "Add"),
@@ -250,24 +267,6 @@ class EmergencyState extends State<Emergency> {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildTextField(
-      TextEditingController controller,
-      String label,
-      IconData icon
-      ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: const OutlineInputBorder(),
-        ),
-      ),
     );
   }
 
@@ -337,7 +336,7 @@ class EmergencyState extends State<Emergency> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.blue),
-                    onPressed: () => _addOrEditCard(index: index),
+                    onPressed: () => addOrEditCard(index: index),
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
@@ -345,14 +344,14 @@ class EmergencyState extends State<Emergency> {
                   ),
                 ],
               ),
-              onTap: () => _addOrEditCard(index: index),
+              onTap: () => addOrEditCard(index: index),
             ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () => _addOrEditCard(),
+        onPressed: () => addOrEditCard(),
       ),
     );
   }
