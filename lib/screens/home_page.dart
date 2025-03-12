@@ -41,10 +41,10 @@ class HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 65,
+        toolbarHeight: 60,
         title: const Padding(
-          padding: EdgeInsets.only(bottom: 13.0),
-          child: Text("SafetyNet", style: TextStyle(fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold)),
+          padding: EdgeInsets.only(bottom: 10.0),
+          child: Text("SafetyNet", style: TextStyle(fontSize: 33, color: Colors.white, fontWeight: FontWeight.bold)),
         ),
         backgroundColor: const Color(0xff1b1725),
         actions: [

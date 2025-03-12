@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../services/verhoeff.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class SignIn extends StatefulWidget {
@@ -15,30 +16,45 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
 
   // Controllers for input fields
+  //Name Controllers
   final firstNameController = TextEditingController();
   final middleNameController = TextEditingController();
   final lastNameController = TextEditingController();
+
+  //Email Controller
+  final emailController = TextEditingController();
+
+  //Date Of Birth Controllers
   final dateController = TextEditingController();
   final ageController = TextEditingController();
-  final addressController = TextEditingController();
-  final emailController = TextEditingController();
+
+  //Contact CController
   final contactController = TextEditingController();
+
+  //Address Controllers
+  final addressController = TextEditingController();
   final cityController = TextEditingController();
   final countryController = TextEditingController();
   final stateController = TextEditingController();
   final pinCodeController = TextEditingController();
+
+  //Aadhaar Controller
   final aadhaarController = TextEditingController();
+
+  //Health Controllers
   final healthCondition = TextEditingController();
   final healthAllergy = TextEditingController();
   final healthSurgeries = TextEditingController();
   final healthMedications = TextEditingController();
+
+  //Password Controllers
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
-
 
   // Page Controllers
   final PageController signInController = PageController();
 
+  //Variables
   String selectedGender = '', aadhaarError = "", selectedBloodType = 'A', selectedRHFactor = '+';
   int mainPageIndex = 0, subPage1Index = 0, subPage2Index = 0, subPage3Index = 0, currentPage = 0;
   bool _obscurePassword = true, _obscureConfirmPassword = true;
@@ -82,9 +98,9 @@ class _SignInState extends State<SignIn> {
     final apiUrl = Uri.parse('${dotenv.env['API_URL']}/users/signup');
 
     final Map<String, dynamic> data = {
-      "fullName": "${firstNameController.text}  ${middleNameController.text}  ${lastNameController.text}",
+      "fullName": "${firstNameController.text}_${middleNameController.text}_${lastNameController.text}",
       "email": emailController.text,
-      "dateOfBirth": "1967-12-11T00:00:00Z",
+      "dateOfBirth": dateController.text,
       "password": passwordController.text,
       "passwordConfirm": confirmPasswordController.text,
       "address": "${addressController.text}, ${cityController.text}, ${stateController.text}, ${countryController.text} ",
@@ -114,17 +130,11 @@ class _SignInState extends State<SignIn> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(responseData["message"] ?? "Signup failed!")),
         );
-        print("_---------------------------------------");
-        print(responseData["message"] ?? "Signup failed!");
-        print("_---------------------------------------");
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),
       );
-      print("_---------------------------------------");
-      print("Error: $e");
-      print("_---------------------------------------");
     }
 
     signInController.nextPage(duration: const Duration(microseconds: 300), curve: Curves.easeIn);
@@ -268,7 +278,7 @@ class _SignInState extends State<SignIn> {
                   // Indicator
                   Row(
                     children: List.generate(
-                      5, // Updated from 4 → 5 because there are 5 pages before confirmation
+                      5,
                           (index) => Padding(
                         padding: const EdgeInsets.only(right: 4),
                         child: dotIndicator(index == currentPage),
@@ -388,7 +398,10 @@ class _SignInState extends State<SignIn> {
 
                           if (pickedDate != null) {
                             setState(() {
-                              dateController.text = "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                              // Format the selected date
+                              dateController.text = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(pickedDate.toUtc());
+
+                              // Calculate age
                               DateTime today = DateTime.now();
                               int age = today.year - pickedDate.year;
                               if (today.month < pickedDate.month ||

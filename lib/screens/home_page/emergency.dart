@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../models/card.dart';
+import '../../models/CardModel.dart';
 
 class Emergency extends StatefulWidget {
   const Emergency({super.key});
@@ -18,7 +18,7 @@ class EmergencyState extends State<Emergency> {
   String authToken = "";
   String userId = "";
   bool isLoading = true;
-  bool isActionLoading = false; // New variable for action-specific loading
+  bool isActionLoading = false;
 
   @override
   void initState() {
@@ -83,7 +83,7 @@ class EmergencyState extends State<Emergency> {
             ),
           ),
           backgroundColor: const Color(0xff1b1725), // Custom background color
-          behavior: SnackBarBehavior.floating, // Floating snackbar
+          behavior: SnackBarBehavior.floating, // Floating Snackbar
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12), // Rounded corners
           ),
@@ -324,6 +324,7 @@ class EmergencyState extends State<Emergency> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Emergency Cards"),
+        backgroundColor: const Color(0xffe9dff1),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -387,7 +388,7 @@ class EmergencyState extends State<Emergency> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          icon: const Icon(Icons.edit, color: Color(0xff1b1725)),
                           onPressed: isActionLoading ? null : () => addOrEditCard(index: index),
                           tooltip: "Edit",
                         ),
@@ -416,10 +417,9 @@ class EmergencyState extends State<Emergency> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: isLoading || isActionLoading ? null : () => addOrEditCard(),
-        disabledElevation: 0,
+        disabledElevation: 1,
         child: const Icon(Icons.add),
       ),
     );
   }
-
 }
